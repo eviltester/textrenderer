@@ -86,6 +86,12 @@ const rendering_gui_html = `
                 <input type="range" min="1" max="400" value="100" class="slider" style="width:80%" id="textborder" onchange="
             document.getElementById('textborderdisplay').innerText = document.getElementById('textborder').value; renderImages()">
                 <hr/>
+                
+                                <br/>
+                <label for="footerborder">Footer Border <span id="footerborderdisplay">30</span></label>
+                <input type="range" min="-400" max="500" value="30" class="slider" style="width:80%" id="footerborder" onchange="
+            document.getElementById('footerborderdisplay').innerText = document.getElementById('footerborder').value; renderImages()">
+                <hr/>
 
                 <br/>
                 <label for="backcolorpicker">BackGround Colour</label>
@@ -225,7 +231,7 @@ function renderFooter(ctx, text){
     footerx = ctx.canvas.width - ctx.measureText(text).width;
     footerx = footerx/2;
 
-    footerborder=30;
+
     footery = ctx.measureText(text).actualBoundingBoxAscent + footerborder;
     footery = ctx.canvas.height-footery;
 
@@ -241,8 +247,9 @@ var fontfamily = "Calibri";
 var maxCharsPerLine = 15;
 var linespacing=30;
 var border = 100;
+var footerborder=30;
 
-function renderThis(useBackColor, useTextColor, text, footer, font, useMaxCharsPerLine, useLineSpacing, useBorder){
+function renderThis(useBackColor, useTextColor, text, footer, font, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder){
 
     backColor = useBackColor;
     textColor = useTextColor;
@@ -250,6 +257,7 @@ function renderThis(useBackColor, useTextColor, text, footer, font, useMaxCharsP
     maxCharsPerLine= parseInt(useMaxCharsPerLine);
     linespacing = parseInt(useLineSpacing);
     border = parseInt(useBorder);
+    footerborder = parseInt(useFooterBorder);
 
     var canvas = document.getElementById('renderslogan');
     var ctx = canvas.getContext('2d');
@@ -267,6 +275,8 @@ function renderCanvasAsJpg(){
 
 
 // TODO: create adjustments for all variables in the renderer e.g. yoffset for footer
+// TODO: add a [default] button to set all defaults
+// TODO: double click on label to set default for individual value
 // TODO: allow footer text size and font to be different from the main text
 // TODO: allow a background image and an opacity for the background colour
 // TODO: when image and opacity is available allow 'margin' for the background colour to adjust amount of background image shown
