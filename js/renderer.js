@@ -1,4 +1,9 @@
-// https://stackoverflow.com/questions/2936112/text-wrap-in-a-canvas-element
+function displayIn(anId){
+    if(!document.getElementById("rendering")) {
+        document.getElementById(anId).insertAdjacentHTML(
+            'beforeend', rendering_gui_html);
+    }
+}
 
 const rendering_gui_html = `
     <div id="rendering">
@@ -55,10 +60,9 @@ const rendering_gui_html = `
                 </select>
                 <br/>
 
-                <label for="fontsize">Font Size</label>
+                <label for="fontsize">Font Size <span id="fontsizedisplay">15</span></label>
                 <input type="range" min="1" max="200" value="15" class="slider" style="width:50%" id="fontsize" onchange="
-            document.getElementById('fontsizedisplay').value = document.getElementById('fontsize').value;document.getElementById('autofontsize').checked=false; renderImages()">
-                <input id="fontsizedisplay" value="15"></input>
+            document.getElementById('fontsizedisplay').innerText = document.getElementById('fontsize').value;document.getElementById('autofontsize').checked=false; renderImages()">
                 <br/>
                 <input type="checkbox" id="autofontsize" checked>Auto Size
                 <hr/>
@@ -66,10 +70,15 @@ const rendering_gui_html = `
 
 
                 <br/>
-                <label for="maxcharsperline">Max Chars Per Line</label>
+                <label for="maxcharsperline">Max Chars Per Line <span id="maxcharsperlinedisplay">15</span></label>
                 <input type="range" min="1" max="50" value="15" class="slider" style="width:80%" id="maxcharsperline" onchange="
-            document.getElementById('maxcharsperlinedisplay').value = document.getElementById('maxcharsperline').value; renderImages()">
-                <input id="maxcharsperlinedisplay" value="15"></input>
+            document.getElementById('maxcharsperlinedisplay').innerText = document.getElementById('maxcharsperline').value; renderImages()">
+                <hr/>
+                
+                <br/>
+                <label for="textlinespacing">Line Spacing <span id="textlinespacingdisplay">30</span></label>
+                <input type="range" min="1" max="200" value="30" class="slider" style="width:80%" id="textlinespacing" onchange="
+            document.getElementById('textlinespacingdisplay').innerText = document.getElementById('textlinespacing').value; renderImages()">
                 <hr/>
 
                 <br/>
@@ -89,11 +98,9 @@ const rendering_gui_html = `
     </div>
 `;
 
-function displayIn(anId){
-    if(!document.getElementById("rendering")) {
-        document.getElementById(anId).insertAdjacentHTML('beforeend', rendering_gui_html);
-    }
-}
+
+
+
 
 function wrapText(ctx, text, maxWidth, lineHeight) {
     var lines=[];
@@ -145,8 +152,8 @@ function calculateFontSizeFor(ctx, text, startFontSize, fontFamily, maxWidth, ma
         }
     }
 
-    document.getElementById("fontsize").value = validFontSize;
-    document.getElementById("fontsizedisplay").value = validFontSize;
+    document.getElementById("fontsize").innerText = validFontSize;
+    document.getElementById("fontsizedisplay").innerText = validFontSize;
 
     return validFontSize + "px " + fontFamily;
 
@@ -175,7 +182,7 @@ function renderText(ctx, text) {
     ctx.fillStyle = textColor;
 
 
-    var linespacing=30;
+
     lineHeight = ctx.measureText("X").actualBoundingBoxAscent + linespacing;
 
     maxLineWidth = ctx.measureText("X").width * maxCharsPerLine;
@@ -221,17 +228,22 @@ function renderFooter(ctx, text){
     renderLines(ctx, footer, footerx, footery, 0);
 }
 
+
+// adjustable globals
 var backColor = "#ff0000";
 var textColor = "#000000";
 var fontfamily = "Calibri";
 var maxCharsPerLine = 15;
+var linespacing=30;
 
-function renderThis(useBackColor, useTextColor, text, footer, font, useMaxCharsPerLine){
+
+function renderThis(useBackColor, useTextColor, text, footer, font, useMaxCharsPerLine, useLineSpacing){
 
     backColor = useBackColor;
     textColor = useTextColor;
     fontfamily = font;
-    maxCharsPerLine=useMaxCharsPerLine;
+    maxCharsPerLine= parseInt(useMaxCharsPerLine);
+    linespacing = parseInt(useLineSpacing);
 
     var canvas = document.getElementById('renderslogan');
     var ctx = canvas.getContext('2d');
@@ -243,3 +255,15 @@ function renderCanvasAsJpg(){
     var img = document.getElementById("renderjpg");
     img.src = document.getElementById('renderslogan').toDataURL("image/jpeg");
 }
+
+// References:
+// https://stackoverflow.com/questions/2936112/text-wrap-in-a-canvas-element
+
+
+// TODO: create adjustments for all variables in the renderer e.g. border, yoffset for footer
+// TODO: allow footer text size and font to be different from the main text
+// TODO: allow a background image and an opacity for the background colour
+// TODO: when image and opacity is available allow 'margin' for the background colour to adjust amount of background image shown
+// TODO: make this a single object that can be added to a page e.g. new Renderer().displayIn("id").pullTextFrom("id").pullFooterFrom("id")
+// TODO: allow hard coding renderer.setText("").setFooter("") - allows white labeling easier for footer
+// TODO: can we pull in list of font names supported by browser rather than hard code?
