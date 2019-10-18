@@ -5,6 +5,19 @@ function displayIn(anId){
     }
 }
 
+function rendersize(width, height){
+    var canvas = document.getElementById("renderslogan");
+    canvas.setAttribute("width", width+"px");
+    canvas.setAttribute("height", height+"px");
+
+    var imagePercentage = 0.04;
+    var img = document.getElementById("renderjpg");
+    img.setAttribute("width", width*imagePercentage);
+    img.setAttribute("height", height*imagePercentage);
+
+    renderImages();
+}
+
 const rendering_gui_html = `
     <div id="rendering">
 
@@ -13,6 +26,8 @@ const rendering_gui_html = `
 
         <div>
             <div class="canvasdisplay" style="width:47%;float:left;margin-right:1em;">
+                <button id="render1080x1080" onclick="rendersize(1080,1080)">1080x1080</button>
+                <button id="render1024x512" onclick="rendersize(1024,512)">1024x512</button>
                 <canvas id="renderslogan" width="1080px" height="1080px" style="width:100%"/>
             </div>
             <div id="renderingcontrols" style="width:47%; float:right">
@@ -180,7 +195,8 @@ function renderText(ctx, text) {
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     // max width for the rendering
-    var maxWidth = 1080-(border*2);
+    var maxWidth = ctx.canvas.width-(border*2);
+    var maxHeight = ctx.canvas.height-(border*2);
 
     var startFontSize=15;
 
@@ -202,7 +218,7 @@ function renderText(ctx, text) {
     lines = wrapText(ctx, text, maxLineWidth, lineHeight);
 
     // center text vertically
-    y = (maxWidth - (lines.length*lineHeight))/2;
+    y = (maxHeight - (lines.length*lineHeight))/2;
     y+=border;
 
     // center text horizontally
@@ -274,12 +290,13 @@ function renderCanvasAsJpg(){
 // https://stackoverflow.com/questions/2936112/text-wrap-in-a-canvas-element
 
 
-// TODO: create adjustments for all variables in the renderer e.g. yoffset for footer
-// TODO: add a [default] button to set all defaults
-// TODO: double click on label to set default for individual value
+
 // TODO: allow footer text size and font to be different from the main text
 // TODO: allow a background image and an opacity for the background colour
 // TODO: when image and opacity is available allow 'margin' for the background colour to adjust amount of background image shown
 // TODO: make this a single object that can be added to a page e.g. new Renderer().displayIn("id").pullTextFrom("id").pullFooterFrom("id")
 // TODO: allow hard coding renderer.setText("").setFooter("") - allows white labeling easier for footer
 // TODO: can we pull in list of font names supported by browser rather than hard code?
+// TODO: add a [default] button to set all defaults
+// TODO: double click on label to set default for individual value
+// TODO: font styles? outline text colour?
