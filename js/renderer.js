@@ -80,6 +80,12 @@ const rendering_gui_html = `
                 <input type="range" min="1" max="200" value="30" class="slider" style="width:80%" id="textlinespacing" onchange="
             document.getElementById('textlinespacingdisplay').innerText = document.getElementById('textlinespacing').value; renderImages()">
                 <hr/>
+                
+                <br/>
+                <label for="textborder">Text Border <span id="textborderdisplay">100</span></label>
+                <input type="range" min="1" max="400" value="100" class="slider" style="width:80%" id="textborder" onchange="
+            document.getElementById('textborderdisplay').innerText = document.getElementById('textborder').value; renderImages()">
+                <hr/>
 
                 <br/>
                 <label for="backcolorpicker">BackGround Colour</label>
@@ -167,7 +173,6 @@ function renderText(ctx, text) {
     ctx.fillStyle = backColor;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    var border = 100;
     // max width for the rendering
     var maxWidth = 1080-(border*2);
 
@@ -235,15 +240,16 @@ var textColor = "#000000";
 var fontfamily = "Calibri";
 var maxCharsPerLine = 15;
 var linespacing=30;
+var border = 100;
 
-
-function renderThis(useBackColor, useTextColor, text, footer, font, useMaxCharsPerLine, useLineSpacing){
+function renderThis(useBackColor, useTextColor, text, footer, font, useMaxCharsPerLine, useLineSpacing, useBorder){
 
     backColor = useBackColor;
     textColor = useTextColor;
     fontfamily = font;
     maxCharsPerLine= parseInt(useMaxCharsPerLine);
     linespacing = parseInt(useLineSpacing);
+    border = parseInt(useBorder);
 
     var canvas = document.getElementById('renderslogan');
     var ctx = canvas.getContext('2d');
@@ -260,7 +266,7 @@ function renderCanvasAsJpg(){
 // https://stackoverflow.com/questions/2936112/text-wrap-in-a-canvas-element
 
 
-// TODO: create adjustments for all variables in the renderer e.g. border, yoffset for footer
+// TODO: create adjustments for all variables in the renderer e.g. yoffset for footer
 // TODO: allow footer text size and font to be different from the main text
 // TODO: allow a background image and an opacity for the background colour
 // TODO: when image and opacity is available allow 'margin' for the background colour to adjust amount of background image shown
