@@ -27,18 +27,16 @@
 </div>
 
 <script>
-    displayIn("visualeditor");
 
-    // show defaults
-    renderAppText();
+    const theRenderer = new Renderer();
+    theRenderer.displayIn("visualeditor");
+    theRenderer.getTextFrom("texttorender");
 
-    // override callRenderThis to hook into GUI
-    callRenderThis = function(){
-        renderThis(
-            document.getElementById("texttorender").value,
-            document.getElementById("footer").value
-        );
-    }
+    // can set a default text
+    // theRenderer.setFooterText("EvilTester.com")
+
+    // hook GUI to component
+    theRenderer.getFooterTextFrom("footer");
 
 </script>
 
