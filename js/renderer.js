@@ -340,16 +340,6 @@ function Renderer() {
     }
 
 
-    function setTextAndFooter(text, footer) {
-        textToRender = text;
-        footerToRender = footer;
-    }
-
-    function renderThis(text, footer) {
-        setTextAndFooter(text, footer);
-        renderImages();
-    }
-
     function renderTextAndFooter() {
         var canvas = document.getElementById('renderslogan');
         var ctx = canvas.getContext('2d');
