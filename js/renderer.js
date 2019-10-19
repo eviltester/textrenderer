@@ -20,6 +20,10 @@ function Renderer() {
         textToRender = text;
     }
 
+    this.renderNow = function(){
+        renderImages();
+    }
+
     this.displayIn = function(anId) {
         if (!document.getElementById("rendering")) {
             document.getElementById(anId).insertAdjacentHTML(
@@ -174,6 +178,7 @@ function Renderer() {
             </div>
         </div>
     </div>
+    <div style="clear:both"></div>
 `;
 
 
@@ -229,9 +234,15 @@ function Renderer() {
         document.getElementById("fontsize").innerText = validFontSize;
         document.getElementById("fontsizedisplay").innerText = validFontSize;
 
-        return validFontSize + "px " + fontFamily;
+        return validFontSize;
 
     }
+
+    function getFontConfigString(thesize, thefamily){
+        return thesize + "px " + thefamily;
+    }
+
+
 
     function renderText(ctx, text) {
 
@@ -248,10 +259,14 @@ function Renderer() {
         var startFontSize = 15;
 
         if (document.getElementById("autofontsize").checked) {
-            ctx.font = calculateFontSizeFor(ctx, text, startFontSize, fontfamily, maxWidth, maxCharsPerLine);
+            fontSize = calculateFontSizeFor(ctx, text, startFontSize, fontfamily, maxWidth, maxCharsPerLine);
+            ctx.font = getFontConfigString(fontSize, fontfamily)
         } else {
-            ctx.font = document.getElementById("fontsize").value + "px " + fontfamily;
+            fontSize = document.getElementById("fontsize").value;
+            ctx.font = getFontConfigString(fontSize, fontfamily)
         }
+
+        // setFooterConfigFromTextConfig(footerConfig, fontSize, fontfamily, textColor);
 
         ctx.fillStyle = textColor;
 
@@ -316,6 +331,49 @@ function Renderer() {
     var textToRender = "";
     var footerToRender = "";
 
+    // // TODO: allow footer text size and font to be different from the main text
+    //
+    // var footerConfig = {
+    //     sameAsText: true,
+    //     fontFamily: undefined,
+    //     textColor: undefined,
+    //     fontSize: undefined
+    // };
+    //
+    // function getFooterTextColor(){
+    //     if(footerConfig.textColor){
+    //         return footerConfig.textColor;
+    //     }else{
+    //         return textColor;
+    //     }
+    // }
+    //
+    // function getFooterFontFamily(){
+    //     if(footerConfig.fontFamily){
+    //         return footerConfig.fontFamily;
+    //     }else{
+    //         return fontfamily;
+    //     }
+    // }
+    //
+    // function getFooterFontSize(){
+    //     if(footerConfig.fontSize){
+    //         return footerConfig.fontFamily;
+    //     }else{
+    //         return fontfamily;
+    //     }
+    // }
+    //
+    // function setFooterConfigFromTextConfig(footerConfig, fontSize, fontfamily, textColor){
+    //     if(footerConfig.sameAsText){
+    //         footerConfig.fontSize = fontSize;
+    //         footerConfig.fontFamily = fontfamily;
+    //         footerConfig.textColor = textColor;
+    //     }
+    //     // else - leave it as it is
+    // }
+
+
     function setGlobalsFromGui() {
         setGlobals(
             document.getElementById("backcolorpicker").value,
@@ -374,7 +432,7 @@ function Renderer() {
     }
 
 
-// TODO: allow footer text size and font to be different from the main text
+
 // TODO: allow a background image and an opacity for the background colour
 // TODO: when image and opacity is available allow 'margin' for the background colour to adjust amount of background image shown
 // TODO: can we pull in list of font names supported by browser rather than hard code?
