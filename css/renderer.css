@@ -1,0 +1,35 @@
+/*
+    Created a CSS to move all inline styling out of the JS component to make it easier to whitelabel
+
+    Minimum styling used to allow github page to be responsive and look functional
+*/
+
+@media only screen and (min-width: 600px) {
+    .canvasdisplay {
+        width: 45%;
+        float: left;
+        margin-right: 1em;
+    }
+
+    .renderingcontrols {
+        width: 45%;
+        float: right;
+    }
+}
+
+.rendercanvas{
+    width:100%;
+}
+
+
+label{
+    display: block;
+}
+
+.slider{
+    width:100%;
+}
+
+.colourpicker{
+    width:100%;
+}

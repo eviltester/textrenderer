@@ -18,6 +18,7 @@ function rendersize(width, height){
     renderImages();
 }
 
+
 const rendering_gui_html = `
     <div id="rendering">
 
@@ -25,101 +26,113 @@ const rendering_gui_html = `
         <br/>
 
         <div>
-            <div class="canvasdisplay" style="width:47%;float:left;margin-right:1em;">
+            <div class="canvasdisplay">
                 <button id="render1080x1080" onclick="rendersize(1080,1080)">1080x1080</button>
                 <button id="render1024x512" onclick="rendersize(1024,512)">1024x512</button>
-                <canvas id="renderslogan" width="1080px" height="1080px" style="width:100%"/>
+                <canvas id="renderslogan" class="rendercanvas" width="1080px" height="1080px"/>
             </div>
-            <div id="renderingcontrols" style="width:47%; float:right">
-                <select id="font" onchange="renderImages()">
-                    <!-- https://www.w3schools.com/cssref/css_websafe_fonts.asp -->
-                    <option value="serif">serif</option>
-                    <option value="georgia">Georgia</option>
-                    <option value="palatino">Palatino</option>
-                    <option value="palatino linotype">Palatino Linotype</option>
-                    <option value="book antiqua">Book Antiqua</option>
-                    <option value="times new roman">Times New Roman</option>
-                    <option value="times">Times</option>
+            <div id="renderingcontrols" class="renderingcontrols">
+                <div class="textbodyconfig">
+                    <div class="textbodyfontconfig">
+                        <div class="textbodyfontnameconfig">
+                            <select id="font" onchange="renderImages()">
+                                <!-- https://www.w3schools.com/cssref/css_websafe_fonts.asp -->
+                                <option value="serif">serif</option>
+                                <option value="georgia">Georgia</option>
+                                <option value="palatino">Palatino</option>
+                                <option value="palatino linotype">Palatino Linotype</option>
+                                <option value="book antiqua">Book Antiqua</option>
+                                <option value="times new roman">Times New Roman</option>
+                                <option value="times">Times</option>
+            
+                                <option value="sans serif">---</option>
+                                <option value="sans serif">sans serif</option>
+                                <option value="arial">Arial</option>
+                                <option value="helvetica">Helvetica</option>
+                                <option value="arial black">Arial Black</option>
+                                <option value="gadget">Gadget</option>
+                                <option value="comic sans ms">Comic Sans MS</option>
+                                <option value="cursive">Cursive</option>
+                                <option value="impact">Impact</option>
+                                <option value="charcoal">Charcoal</option>
+                                <option value="lucida sans unicode">Lucida Sans Unicode</option>
+                                <option value="lucida grande">Lucida Grande</option>
+                                <option value="tahoma">Tahoma</option>
+                                <option value="geneva">Geneva</option>
+                                <option value="trebuchet ms">Trebuchet MS</option>
+                                <option value="verdana">Verdana</option>
+            
+                                <option value="monospace">---</option>
+                                <option value="monospace">monospace</option>
+                                <option value="courier new">Courier New</option>
+                                <option value="courier">Courier</option>
+                                <option value="monaco">Monaco</option>
+                                <option value="lucida console">Lucida Console</option>
+            
+                                <option value="roboto">---</option>
+                                <option value="roboto">Roboto</option>
+                                <option value="garamond">Garamond</option>
+                                <option value="bookman">Bookman</option>
+                                <option value="candara">Candara</option>
+                                <option value="calibri">Calibri</option>
+            
+                            </select>
+                        </div>
+                    
+                        <div class="textbodyfontsizeconfig">
+                            <div class="textbodyfontsizeautocontrol">
+                                <input type="checkbox" id="autofontsize" checked>Auto Size
+                            </div>
+                            <div class="textbodyfontsizecontrol">
+                                <label for="fontsize">Font Size <span id="fontsizedisplay">15</span></label>
+                                <input type="range" min="1" max="200" value="15" class="slider" id="fontsize" onchange="
+                            document.getElementById('fontsizedisplay').innerText = document.getElementById('fontsize').value;document.getElementById('autofontsize').checked=false; renderImages()">
+                            </div>
 
-                    <option value="sans serif">---</option>
-                    <option value="sans serif">sans serif</option>
-                    <option value="arial">Arial</option>
-                    <option value="helvetica">Helvetica</option>
-                    <option value="arial black">Arial Black</option>
-                    <option value="gadget">Gadget</option>
-                    <option value="comic sans ms">Comic Sans MS</option>
-                    <option value="cursive">Cursive</option>
-                    <option value="impact">Impact</option>
-                    <option value="charcoal">Charcoal</option>
-                    <option value="lucida sans unicode">Lucida Sans Unicode</option>
-                    <option value="lucida grande">Lucida Grande</option>
-                    <option value="tahoma">Tahoma</option>
-                    <option value="geneva">Geneva</option>
-                    <option value="trebuchet ms">Trebuchet MS</option>
-                    <option value="verdana">Verdana</option>
-
-                    <option value="monospace">---</option>
-                    <option value="monospace">monospace</option>
-                    <option value="courier new">Courier New</option>
-                    <option value="courier">Courier</option>
-                    <option value="monaco">Monaco</option>
-                    <option value="lucida console">Lucida Console</option>
-
-                    <option value="roboto">---</option>
-                    <option value="roboto">Roboto</option>
-                    <option value="garamond">Garamond</option>
-                    <option value="bookman">Bookman</option>
-                    <option value="candara">Candara</option>
-                    <option value="calibri">Calibri</option>
-
-                </select>
-                <br/>
-
-                <label for="fontsize">Font Size <span id="fontsizedisplay">15</span></label>
-                <input type="range" min="1" max="200" value="15" class="slider" style="width:50%" id="fontsize" onchange="
-            document.getElementById('fontsizedisplay').innerText = document.getElementById('fontsize').value;document.getElementById('autofontsize').checked=false; renderImages()">
-                <br/>
-                <input type="checkbox" id="autofontsize" checked>Auto Size
-                <hr/>
-
-
-
-                <br/>
-                <label for="maxcharsperline">Max Chars Per Line <span id="maxcharsperlinedisplay">15</span></label>
-                <input type="range" min="1" max="50" value="15" class="slider" style="width:80%" id="maxcharsperline" onchange="
-            document.getElementById('maxcharsperlinedisplay').innerText = document.getElementById('maxcharsperline').value; renderImages()">
-                <hr/>
+                         </div>        
+        
+        
+                        <div class="maxcharsperlineconfig">
+                            <label for="maxcharsperline">Max Chars Per Line <span id="maxcharsperlinedisplay">15</span></label>
+                            <input type="range" min="1" max="50" value="15" class="slider" id="maxcharsperline" onchange="
+                        document.getElementById('maxcharsperlinedisplay').innerText = document.getElementById('maxcharsperline').value; renderImages()">
+                        </div> 
+                                               
+                        <div class="textlinespacingconfig">
+                            <label for="textlinespacing">Line Spacing <span id="textlinespacingdisplay">30</span></label>
+                            <input type="range" min="1" max="200" value="30" class="slider" id="textlinespacing" onchange="
+                        document.getElementById('textlinespacingdisplay').innerText = document.getElementById('textlinespacing').value; renderImages()">
+                        </div>                        
+                        
+                        <div class="textborderconfig">
+                            <label for="textborder">Text Border <span id="textborderdisplay">100</span></label>
+                            <input type="range" min="1" max="400" value="100" class="slider" id="textborder" onchange="
+                        document.getElementById('textborderdisplay').innerText = document.getElementById('textborder').value; renderImages()">
+                        </div>
+                    </div>
+                </div>
                 
-                <br/>
-                <label for="textlinespacing">Line Spacing <span id="textlinespacingdisplay">30</span></label>
-                <input type="range" min="1" max="200" value="30" class="slider" style="width:80%" id="textlinespacing" onchange="
-            document.getElementById('textlinespacingdisplay').innerText = document.getElementById('textlinespacing').value; renderImages()">
-                <hr/>
+                <div class="textfooterconfig">
+                    <label for="footerborder">Footer Border <span id="footerborderdisplay">30</span></label>
+                    <input type="range" min="-400" max="500" value="30" class="slider" id="footerborder" onchange="
+                document.getElementById('footerborderdisplay').innerText = document.getElementById('footerborder').value; renderImages()">
+                </div>
                 
-                <br/>
-                <label for="textborder">Text Border <span id="textborderdisplay">100</span></label>
-                <input type="range" min="1" max="400" value="100" class="slider" style="width:80%" id="textborder" onchange="
-            document.getElementById('textborderdisplay').innerText = document.getElementById('textborder').value; renderImages()">
-                <hr/>
+                <div class="colourpickers">
+                    <div class="backgroundcolourpicker">
+                        <label for="backcolorpicker" class="colourpickerlabel">BackGround Colour</label>
+                        <input type="color" id="backcolorpicker"  class="colourpicker" value="#ff0000" onchange="renderImages()"">
+                    </div>
+                    <div class="textcolourpicker">
+                        <label for="textcolorpicker" class="colourpickerlabel">Text Colour</label>
+                        <input type="color" id="textcolorpicker" value="#000000" class="colourpicker" onchange="renderImages()">
+                    </div>
+                </div>
                 
-                                <br/>
-                <label for="footerborder">Footer Border <span id="footerborderdisplay">30</span></label>
-                <input type="range" min="-400" max="500" value="30" class="slider" style="width:80%" id="footerborder" onchange="
-            document.getElementById('footerborderdisplay').innerText = document.getElementById('footerborder').value; renderImages()">
-                <hr/>
-
-                <br/>
-                <label for="backcolorpicker">BackGround Colour</label>
-                <input type="color" id="backcolorpicker" value="#ff0000" onchange="renderImages()" style="width:50%;">
-                <br/>
-                <label for="textcolorpicker">Text Colour</label>
-                <input type="color" id="textcolorpicker" value="#000000"  onchange="renderImages()"  style="width:50%;">
-                <br/>
-
-                <p>for .jpg right click and save as below:</p>
-                <img id="renderjpg" width="50px" height="50px"/>
-                <br/>
-
+                <div class="jpgimagepreview"
+                    <p>for .jpg right click and save as below:</p>
+                    <img id="renderjpg" width="50px" height="50px"/>
+                </div>
             </div>
         </div>
     </div>
