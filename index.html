@@ -6,22 +6,6 @@
     <link rel="stylesheet" type="text/css" href="css/renderer.css">
     <script src="js/renderer.js"></script>
 
-    <script>
-        function renderImages(){
-            renderThis(document.getElementById("backcolorpicker").value,
-                document.getElementById("textcolorpicker").value,
-                document.getElementById("texttorender").value,
-                document.getElementById("footer").value,
-                document.getElementById("font").value,
-                document.getElementById("maxcharsperline").value,
-                document.getElementById('textlinespacing').value,
-                document.getElementById('textborder').value,
-                document.getElementById('footerborder').value
-            );
-            renderCanvasAsJpg();
-        }
-    </script>
-
 </head>
 <body>
 
@@ -44,6 +28,18 @@
 
 <script>
     displayIn("visualeditor");
+
+    // show defaults
+    renderImages();
+
+    // override callRenderThis to hook into GUI
+    callRenderThis = function(){
+        renderThis(
+            document.getElementById("texttorender").value,
+            document.getElementById("footer").value
+        );
+    }
+
 </script>
 
 </body>

@@ -5,7 +5,7 @@ function displayIn(anId){
     }
 }
 
-function rendersize(width, height){
+function changerendersize(width, height){
     var canvas = document.getElementById("renderslogan");
     canvas.setAttribute("width", width+"px");
     canvas.setAttribute("height", height+"px");
@@ -27,8 +27,8 @@ const rendering_gui_html = `
 
         <div>
             <div class="canvasdisplay">
-                <button id="render1080x1080" onclick="rendersize(1080,1080)">1080x1080</button>
-                <button id="render1024x512" onclick="rendersize(1024,512)">1024x512</button>
+                <button id="render1080x1080" onclick="changerendersize(1080,1080)">1080x1080</button>
+                <button id="render1024x512" onclick="changerendersize(1024,512)">1024x512</button>
                 <canvas id="renderslogan" class="rendercanvas" width="1080px" height="1080px"/>
             </div>
             <div id="renderingcontrols" class="renderingcontrols">
@@ -137,9 +137,6 @@ const rendering_gui_html = `
         </div>
     </div>
 `;
-
-
-
 
 
 function wrapText(ctx, text, maxWidth, lineHeight) {
@@ -278,15 +275,31 @@ var linespacing=30;
 var border = 100;
 var footerborder=30;
 
-function renderThis(useBackColor, useTextColor, text, footer, font, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder){
+function setGlobalsFromGui(){
+    setGlobals(
+        document.getElementById("backcolorpicker").value,
+        document.getElementById("textcolorpicker").value,
+        document.getElementById("font").value,
+        document.getElementById("maxcharsperline").value,
+        document.getElementById('textlinespacing').value,
+        document.getElementById('textborder').value,
+        document.getElementById('footerborder').value
+    )
+}
+
+function setGlobals(useBackColor, useTextColor, font, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder) {
 
     backColor = useBackColor;
     textColor = useTextColor;
     fontfamily = font;
-    maxCharsPerLine= parseInt(useMaxCharsPerLine);
+    maxCharsPerLine = parseInt(useMaxCharsPerLine);
     linespacing = parseInt(useLineSpacing);
     border = parseInt(useBorder);
     footerborder = parseInt(useFooterBorder);
+}
+
+
+function renderThis( text, footer){
 
     var canvas = document.getElementById('renderslogan');
     var ctx = canvas.getContext('2d');
@@ -302,6 +315,20 @@ function renderCanvasAsJpg(){
 // References:
 // https://stackoverflow.com/questions/2936112/text-wrap-in-a-canvas-element
 
+callRenderThis = function(){
+    renderThis("Enter text in the text to render", "Footer Text");
+}
+
+function renderImages(){
+    setGlobalsFromGui();
+    callRenderThis();
+    // renderThis(
+    //     document.getElementById("texttorender").value,
+    //     document.getElementById("footer").value
+    // );
+    renderCanvasAsJpg();
+}
+
 
 
 // TODO: allow footer text size and font to be different from the main text
@@ -313,3 +340,6 @@ function renderCanvasAsJpg(){
 // TODO: add a [default] button to set all defaults
 // TODO: double click on label to set default for individual value
 // TODO: font styles? outline text colour?
+// TODO: make javascript control html template more configurable and code generated
+
+
