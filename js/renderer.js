@@ -22,7 +22,7 @@ function changerendersize(width, height){
 const rendering_gui_html = `
     <div id="rendering">
 
-        <button onclick="renderImages()">RENDER</button>
+        <button onclick="renderAppText()">RENDER</button>
         <br/>
 
         <div>
@@ -275,6 +275,9 @@ var linespacing=30;
 var border = 100;
 var footerborder=30;
 
+var textToRender="";
+var footerToRender="";
+
 function setGlobalsFromGui(){
     setGlobals(
         document.getElementById("backcolorpicker").value,
@@ -299,12 +302,21 @@ function setGlobals(useBackColor, useTextColor, font, useMaxCharsPerLine, useLin
 }
 
 
-function renderThis( text, footer){
+function setTextAndFooter(text, footer){
+    textToRender = text;
+    footerToRender = footer;
+}
 
+function renderThis( text, footer){
+    setTextAndFooter(text, footer);
+    renderImages();
+}
+
+function renderTextAndFooter(){
     var canvas = document.getElementById('renderslogan');
     var ctx = canvas.getContext('2d');
-    renderText(ctx, text);
-    renderFooter(ctx, footer)
+    renderText(ctx, textToRender);
+    renderFooter(ctx, footerToRender);
 }
 
 function renderCanvasAsJpg(){
@@ -321,14 +333,14 @@ callRenderThis = function(){
 
 function renderImages(){
     setGlobalsFromGui();
-    callRenderThis();
-    // renderThis(
-    //     document.getElementById("texttorender").value,
-    //     document.getElementById("footer").value
-    // );
+    renderTextAndFooter();
     renderCanvasAsJpg();
 }
 
+function renderAppText(){
+    callRenderThis();
+    renderImages();
+}
 
 
 // TODO: allow footer text size and font to be different from the main text
