@@ -1,9 +1,28 @@
 function Renderer() {
 
     var idForTextValue;
+
+    // supports hooking an event on to a field with a value, and a field with innerText modification
     this.getTextFrom =function(anId){
         idForTextValue = anId;
-        document.getElementById(anId).addEventListener("change", function(){textToRender=document.getElementById(anId).value;renderImages()})
+        var elem = document.getElementById(anId);
+        if(elem.value==undefined){
+            // it doesn't seem to have a value so check for dom tree modifications and innerText
+            document.getElementById(anId).addEventListener("DOMSubtreeModified",
+                function(){
+                    textToRender =  document.getElementById(anId).innerText;
+                    renderImages();
+                }
+            );
+        }else {
+            // it has a value, use that
+            document.getElementById(anId).addEventListener("change",
+                function () {
+                    textToRender = document.getElementById(anId).value;
+                    renderImages();
+                }
+            );
+        }
     }
 
     var idForFooterTextValue;
