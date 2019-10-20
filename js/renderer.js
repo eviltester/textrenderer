@@ -1,3 +1,11 @@
+/*
+    Informal version tracking
+
+    20191020 - added dom subtree hook to getFooterTextFrom
+    20191020 - started tracking
+
+*/
+
 function Renderer() {
 
     var idForTextValue;
@@ -28,7 +36,24 @@ function Renderer() {
     var idForFooterTextValue;
     this.getFooterTextFrom =function(anId){
         idForFooterTextValue = anId;
-        document.getElementById(anId).addEventListener("change", function(){footerToRender=document.getElementById(anId).value;renderImages()})
+        var elem = document.getElementById(anId);
+        if(elem.value==undefined){
+            // it doesn't seem to have a value so check for dom tree modifications and innerText
+            document.getElementById(anId).addEventListener("DOMSubtreeModified",
+                function(){
+                    footerToRender =  document.getElementById(anId).innerText;
+                    renderImages();
+                }
+            );
+        }else {
+            // it has a value, use that
+            document.getElementById(anId).addEventListener("change",
+                function () {
+                    footerToRender = document.getElementById(anId).value;
+                    renderImages();
+                }
+            );
+        }
     }
 
     this.setFooterText = function(text){
