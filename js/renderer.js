@@ -294,7 +294,8 @@ function Renderer() {
     }
 
 
-var backgroundimage; //="https://www.eviltester.com/images/alan/confHead_round_216x216.png";
+    // may not be able to use background image for jped due to tainted image
+var backgroundimage; // ="https://avatars3.githubusercontent.com/u/2621217?s=460&v=4";
 
     function renderText(ctx, text) {
 
@@ -302,8 +303,11 @@ var backgroundimage; //="https://www.eviltester.com/images/alan/confHead_round_2
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.beginPath();
 
+        renderBackgroundColour(ctx, "#FFFFFF");
+
         if(backgroundimage && backgroundimage.length!=0){
             var background = new Image();
+
             background.onload = function(){
 
                 // top left
@@ -324,6 +328,8 @@ var backgroundimage; //="https://www.eviltester.com/images/alan/confHead_round_2
                 imagexOffset = (ctx.canvas.width - (ctx.canvas.width*xratio))/2;
                 imageyOffset = (ctx.canvas.height - (ctx.canvas.height*yratio))/2;
 
+
+
                 ctx.drawImage(background,0,0, background.width, background.height, 0+imagexOffset,0+imageyOffset, ctx.canvas.width*xratio, ctx.canvas.height*yratio);
 
                 //renderBackgroundColour(ctx);
@@ -337,8 +343,31 @@ var backgroundimage; //="https://www.eviltester.com/images/alan/confHead_round_2
         }
     }
 
-    function renderBackgroundColour(ctx){
-        ctx.fillStyle = backColor;
+
+    function hexToRgb(hex, alpha) {
+        hex   = hex.replace('#', '');
+        var r = parseInt(hex.length == 3 ? hex.slice(0, 1).repeat(2) : hex.slice(0, 2), 16);
+        var g = parseInt(hex.length == 3 ? hex.slice(1, 2).repeat(2) : hex.slice(2, 4), 16);
+        var b = parseInt(hex.length == 3 ? hex.slice(2, 3).repeat(2) : hex.slice(4, 6), 16);
+        if ( alpha ) {
+            return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+        }
+        else {
+            return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+        }
+    }
+
+    function renderBackgroundColour(ctx, overridecolor){
+
+
+        if(overridecolor){
+            ctx.fillStyle = overridecolor;
+        }else {
+            // opacity test
+            // ctx.fillStyle = hexToRgb(backColor, 0.5);
+            ctx.fillStyle = backColor;
+        }
+
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
 
