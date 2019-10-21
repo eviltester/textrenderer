@@ -294,15 +294,55 @@ function Renderer() {
     }
 
 
+var backgroundimage; //="https://www.eviltester.com/images/alan/confHead_round_216x216.png";
 
     function renderText(ctx, text) {
 
 
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.beginPath();
+
+        if(backgroundimage && backgroundimage.length!=0){
+            var background = new Image();
+            background.onload = function(){
+
+                // top left
+                // ctx.drawImage(background,0,0);
+                // sized to canvas
+                //ctx.drawImage(background,0,0, background.width, background.height, 0,0, ctx.canvas.width, ctx.canvas.height);
+
+                // scale image
+                var initialxratio = 75;
+                var initialyratio = 75;
+                var xratio = initialxratio / 100;
+                var yratio = initialyratio / 100;
+
+                var imagexOffset=0;
+                var imageyOffset=0;
+
+                // center image
+                imagexOffset = (ctx.canvas.width - (ctx.canvas.width*xratio))/2;
+                imageyOffset = (ctx.canvas.height - (ctx.canvas.height*yratio))/2;
+
+                ctx.drawImage(background,0,0, background.width, background.height, 0+imagexOffset,0+imageyOffset, ctx.canvas.width*xratio, ctx.canvas.height*yratio);
+
+                //renderBackgroundColour(ctx);
+
+                renderSlogan(ctx, text);
+            }
+            background.src = backgroundimage;
+        }else{
+            renderBackgroundColour(ctx);
+            renderSlogan(ctx, text);
+        }
+    }
+
+    function renderBackgroundColour(ctx){
         ctx.fillStyle = backColor;
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    }
 
+    function renderSlogan(ctx, text){
         // max width for the rendering
         var maxWidth = ctx.canvas.width - (border * 2);
         var maxHeight = ctx.canvas.height - (border * 2);
@@ -353,8 +393,6 @@ function Renderer() {
 
 
         renderLines(ctx, lines, x, y, lineHeight);
-
-
     }
 
     function renderFooter(ctx, text) {
