@@ -555,7 +555,7 @@ var backgroundimage; // ="https://avatars3.githubusercontent.com/u/2621217?s=460
 
 
 
-// TODO: allow a background image and an opacity for the background colour
+// TODO: allow a background image and an opacity for the background colour - need to catch error and make readable error for tainted image and this code needs to be programmatically activated as an advanced mode
 // TODO: when image and opacity is available allow 'margin' for the background colour to adjust amount of background image shown
 // TODO: can we pull in list of font names supported by browser rather than hard code?
 // TODO: add a [default] button to set all defaults
