@@ -84,6 +84,7 @@ function Renderer() {
         document.getElementById("footerborder").addEventListener("change", renderImages);
         document.getElementById("backcolorpicker").addEventListener("change", renderImages);
         document.getElementById("textcolorpicker").addEventListener("change", renderImages);
+        document.getElementById("sloganyadjust").addEventListener("change", renderImages);
 
         document.getElementById("render1024x512").addEventListener("click", function(){changerendersize(1024,512)})
         document.getElementById("render1080x1080").addEventListener("click", function(){changerendersize(1080,1080)})
@@ -182,7 +183,13 @@ function Renderer() {
                             <label for="maxcharsperline">Max Chars Per Line <span id="maxcharsperlinedisplay">15</span></label>
                             <input type="range" min="1" max="50" value="15" class="slider" id="maxcharsperline" onchange="
                         document.getElementById('maxcharsperlinedisplay').innerText = document.getElementById('maxcharsperline').value;">
-                        </div> 
+                        </div>
+                        
+                        <div class="sloganyadjustconfig">
+                            <label for="sloganyadjust">Slogan Vertical Adjust <span id="sloganyadjustdisplay">0</span></label>
+                            <input type="range" min="-300" max="300" value="0" class="slider" id="sloganyadjust" onchange="
+                        document.getElementById('sloganyadjustdisplay').innerText = document.getElementById('sloganyadjust').value;">
+                        </div>  
                                                
                         <div class="textlinespacingconfig">
                             <label for="textlinespacing">Line Spacing <span id="textlinespacingdisplay">30</span></label>
@@ -324,6 +331,7 @@ function Renderer() {
 
         // center text vertically
         y = (maxHeight - (lines.length * lineHeight)) / 2;
+        y += sloganyadjust;
         y += border;
 
         // center text horizontally
@@ -371,6 +379,7 @@ function Renderer() {
     var linespacing = 30;
     var border = 100;
     var footerborder = 30;
+    var sloganyadjust = 0;
 
     var textToRender = "";
     var footerToRender = "";
@@ -426,11 +435,12 @@ function Renderer() {
             document.getElementById("maxcharsperline").value,
             document.getElementById('textlinespacing').value,
             document.getElementById('textborder').value,
-            document.getElementById('footerborder').value
+            document.getElementById('footerborder').value,
+            document.getElementById('sloganyadjust').value
         )
     }
 
-    function setGlobals(useBackColor, useTextColor, font, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder) {
+    function setGlobals(useBackColor, useTextColor, font, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder, usesloganyadjust) {
 
         backColor = useBackColor;
         textColor = useTextColor;
@@ -439,6 +449,7 @@ function Renderer() {
         linespacing = parseInt(useLineSpacing);
         border = parseInt(useBorder);
         footerborder = parseInt(useFooterBorder);
+        sloganyadjust = parseInt(usesloganyadjust);
     }
 
 
