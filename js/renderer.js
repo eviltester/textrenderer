@@ -251,7 +251,7 @@ function Renderer() {
                 
                 <div class="jpgimagepreview"
                     <p>for .jpg right click and save as below:</p>
-                    <img id="renderjpg" width="50px" height="50px"/>
+                    <img id="renderjpg" crossorigin="anonymous" width="50px" height="50px"/>
                 </div>
             </div>
         </div>
@@ -330,6 +330,7 @@ var backgroundimage;
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         ctx.beginPath();
 
+        // add a non-transparent white background by default for jpeg mainly
         renderBackgroundColour(ctx, "#FFFFFF");
 
         if(backgroundimage && backgroundimage.length!=0){
@@ -581,6 +582,7 @@ var backgroundimage;
     }
 
     function renderCanvasAsJpg() {
+        // TODO: this does not work with a background image
         var img = document.getElementById("renderjpg");
         img.src = document.getElementById('renderslogan').toDataURL("image/jpeg");
     }
