@@ -60,6 +60,11 @@ function Renderer() {
         footerToRender = text;
     }
 
+    var backgroundImageFunctionality=false;
+    this.backgroundImageFunctionalityEnabled = function(aboolean){
+        backgroundImageFunctionality = aboolean;
+    }
+
     this.setTextToRender = function(text){
         textToRender = text;
     }
@@ -85,6 +90,16 @@ function Renderer() {
         document.getElementById("backcolorpicker").addEventListener("change", renderImages);
         document.getElementById("textcolorpicker").addEventListener("change", renderImages);
         document.getElementById("sloganyadjust").addEventListener("change", renderImages);
+
+        if(backgroundImageFunctionality){
+            document.querySelector(".backgroundimageconfig").style.display = "block"; // show controls
+            document.getElementById("backgroundimageurlinput").addEventListener("change", renderImages);
+            // opacity of background colour
+            document.getElementById("backgroundcolouropacity").addEventListener("change", renderImages);
+            // todo: border of background colour
+            // todo: yoffset of background colour
+            // todo: center image (which would also use image padding)
+        }
 
         document.getElementById("render1024x512").addEventListener("click", function(){changerendersize(1024,512)})
         document.getElementById("render1080x1080").addEventListener("click", function(){changerendersize(1080,1080)})
@@ -214,12 +229,24 @@ function Renderer() {
                 <div class="colourpickers">
                     <div class="backgroundcolourpicker">
                         <label for="backcolorpicker" class="colourpickerlabel">BackGround Colour</label>
-                        <input type="color" id="backcolorpicker"  class="colourpicker" value="#ff0000""">
+                        <input type="color" id="backcolorpicker"  class="colourpicker" value="#ff0000">
                     </div>
                     <div class="textcolourpicker">
                         <label for="textcolorpicker" class="colourpickerlabel">Text Colour</label>
-                        <input type="color" id="textcolorpicker" value="#000000" class="colourpicker"">
+                        <input type="color" id="textcolorpicker" value="#000000" class="colourpicker">
                     </div>
+                </div>
+                
+                <!-- prototype as not always going to work so don't want to confuse users -->
+                <div class="backgroundimageconfig" style="display:none">
+                    <div class="backgroundimageurlinput">
+                        <label for="backgroundimageurlinput">Background Image Url</label>
+                        <input type="text" id="backgroundimageurlinput">
+                    </div>
+                    <div class="backgroundcolouropacity">
+                        <label for="backgroundcolouropacity">Background Colour Opacity 0 - 1</label>
+                        <input type="text" id="backgroundcolouropacity">
+                    </div>                    
                 </div>
                 
                 <div class="jpgimagepreview"
@@ -294,8 +321,8 @@ function Renderer() {
     }
 
 
-    // may not be able to use background image for jped due to tainted image
-var backgroundimage; // ="https://avatars3.githubusercontent.com/u/2621217?s=460&v=4";
+    // may not be able to use background image for jpeg due to tainted image
+var backgroundimage;
 
     function renderText(ctx, text) {
 
@@ -307,13 +334,16 @@ var backgroundimage; // ="https://avatars3.githubusercontent.com/u/2621217?s=460
 
         if(backgroundimage && backgroundimage.length!=0){
             var background = new Image();
+            background.crossOrigin = "Anonymous";   // requires header from server Access-Control-Allow-Origin "*"
 
             background.onload = function(){
 
-                // top left
+                // actual size
                 // ctx.drawImage(background,0,0);
-                // sized to canvas
-                //ctx.drawImage(background,0,0, background.width, background.height, 0,0, ctx.canvas.width, ctx.canvas.height);
+
+                // scaled to canvas
+                // could be done using scaling code scale ratio of 100, 100 and y offset, x offset of 0
+                ctx.drawImage(background,0,0, background.width, background.height, 0,0, ctx.canvas.width, ctx.canvas.height);
 
                 // scale image
                 var initialxratio = 75;
@@ -329,14 +359,23 @@ var backgroundimage; // ="https://avatars3.githubusercontent.com/u/2621217?s=460
                 imageyOffset = (ctx.canvas.height - (ctx.canvas.height*yratio))/2;
 
 
+                // centered with custom scale
+                //ctx.drawImage(background,0,0, background.width, background.height, 0+imagexOffset,0+imageyOffset, ctx.canvas.width*xratio, ctx.canvas.height*yratio);
 
-                ctx.drawImage(background,0,0, background.width, background.height, 0+imagexOffset,0+imageyOffset, ctx.canvas.width*xratio, ctx.canvas.height*yratio);
-
-                //renderBackgroundColour(ctx);
+                renderBackgroundColour(ctx);
 
                 renderSlogan(ctx, text);
             }
+
+            background.onerror = function(){
+                // TODO: create a GUI control for error reporting
+                console.log("could not load image, rendering with background instead");
+                renderBackgroundColour(ctx);
+                renderSlogan(ctx, text);
+            }
+
             background.src = backgroundimage;
+
         }else{
             renderBackgroundColour(ctx);
             renderSlogan(ctx, text);
@@ -364,8 +403,11 @@ var backgroundimage; // ="https://avatars3.githubusercontent.com/u/2621217?s=460
             ctx.fillStyle = overridecolor;
         }else {
             // opacity test
-            // ctx.fillStyle = hexToRgb(backColor, 0.5);
-            ctx.fillStyle = backColor;
+            if(backgroundImageFunctionality) {
+                ctx.fillStyle = hexToRgb(backColor, backgroundOpacity);
+            }else {
+                ctx.fillStyle = backColor;
+            }
         }
 
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -447,6 +489,7 @@ var backgroundimage; // ="https://avatars3.githubusercontent.com/u/2621217?s=460
     var border = 100;
     var footerborder = 30;
     var sloganyadjust = 0;
+    var backgroundOpacity=0;
 
     var textToRender = "";
     var footerToRender = "";
@@ -503,11 +546,13 @@ var backgroundimage; // ="https://avatars3.githubusercontent.com/u/2621217?s=460
             document.getElementById('textlinespacing').value,
             document.getElementById('textborder').value,
             document.getElementById('footerborder').value,
-            document.getElementById('sloganyadjust').value
+            document.getElementById('sloganyadjust').value,
+            document.getElementById('backgroundimageurlinput').value,
+            document.getElementById('backgroundcolouropacity').value
         )
     }
 
-    function setGlobals(useBackColor, useTextColor, font, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder, usesloganyadjust) {
+    function setGlobals(useBackColor, useTextColor, font, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder, usesloganyadjust, useImageUrl, useOpacity) {
 
         backColor = useBackColor;
         textColor = useTextColor;
@@ -517,6 +562,14 @@ var backgroundimage; // ="https://avatars3.githubusercontent.com/u/2621217?s=460
         border = parseInt(useBorder);
         footerborder = parseInt(useFooterBorder);
         sloganyadjust = parseInt(usesloganyadjust);
+
+        if(backgroundImageFunctionality){
+            backgroundimage = useImageUrl;
+            backgroundOpacity = parseFloat(useOpacity);
+        }else{
+            backgroundimage = undefined;
+            backgroundOpacity = 1;
+        }
     }
 
 
@@ -555,7 +608,7 @@ var backgroundimage; // ="https://avatars3.githubusercontent.com/u/2621217?s=460
 
 
 
-// TODO: allow a background image and an opacity for the background colour - need to catch error and make readable error for tainted image and this code needs to be programmatically activated as an advanced mode
+// TODO: allow a background image and an opacity for the background colour - need to catch error and make readable error for tainted image and this code needs to be programmatically activated as an advanced mode (tried copying into intermediate canvas but that didn't work)
 // TODO: when image and opacity is available allow 'margin' for the background colour to adjust amount of background image shown
 // TODO: can we pull in list of font names supported by browser rather than hard code?
 // TODO: add a [default] button to set all defaults
