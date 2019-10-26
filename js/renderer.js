@@ -263,7 +263,7 @@ function Renderer() {
                     </div>
                      <div class="texteffectsizeconfig">
                             <label for="texteffectsize">Text Effect Size <span id="texteffectsizedisplay">6</span></label>
-                            <input type="range" min="0" max="40" value="6" class="slider" id="texteffectsize" onchange="
+                            <input type="range" min="0" max="200" value="6" class="slider" id="texteffectsize" onchange="
                         document.getElementById('texteffectsizedisplay').innerText = document.getElementById('texteffectsize').value;">
                      </div>
                 </div>
