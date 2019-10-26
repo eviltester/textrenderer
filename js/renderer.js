@@ -82,6 +82,8 @@ function Renderer() {
         document.getElementById("renderfromguibutton").addEventListener("click", renderAppText);
 
         document.getElementById("textfontselector").addEventListener("change", renderImages);
+        document.getElementById("autofontsize").addEventListener("change", renderImages);
+
         document.getElementById("fontsize").addEventListener("change", renderImages);
         document.getElementById("maxcharsperline").addEventListener("change", renderImages);
         document.getElementById("textlinespacing").addEventListener("change", renderImages);
@@ -90,6 +92,11 @@ function Renderer() {
         document.getElementById("backcolorpicker").addEventListener("change", renderImages);
         document.getElementById("textcolorpicker").addEventListener("change", renderImages);
         document.getElementById("sloganyadjust").addEventListener("change", renderImages);
+
+        document.getElementById("texteffectstyleselector").addEventListener("change", renderImages);
+        document.getElementById("applyeffecttofooter").addEventListener("change", renderImages);
+        document.getElementById("effectColourPicker").addEventListener("change", renderImages);
+        document.getElementById("texteffectsize").addEventListener("change", renderImages);
 
         if(backgroundImageFunctionality){
             document.querySelector(".backgroundimageconfig").style.display = "block"; // show controls
@@ -221,7 +228,7 @@ function Renderer() {
                 </div>
                 
                 <div class="textfooterconfig">
-                    <label for="footerborder">Footer Border <span id="footerborderdisplay">30</span></label>
+                    <label for="footerborder">Footer Vertical Adjust <span id="footerborderdisplay">30</span></label>
                     <input type="range" min="-400" max="500" value="30" class="slider" id="footerborder" onchange="
                 document.getElementById('footerborderdisplay').innerText = document.getElementById('footerborder').value;">
                 </div>
@@ -236,6 +243,31 @@ function Renderer() {
                         <input type="color" id="textcolorpicker" value="#000000" class="colourpicker">
                     </div>
                 </div>
+                
+                 <div class="textEffects">
+                    <div class="texteffectstyleconfig">
+                        <select id="texteffectstyleselector"">
+                            <option value="0" selected>Normal</option>
+                            <option value="1">Outline</option>
+                            <option value="2">Shadow</option>
+                            <option value="3">Glow</option>
+                        </select>
+                    </div>
+                   <div class="applyeffecttofooterconfig">
+                        <input type="checkbox" id="applyeffecttofooter">Apply Effect To Footer?
+                    </div>
+                    <div class="textEffectColourPicker">
+                        <label for="effectColourPicker" class="colourpickerlabel">Text Effect Colour</label>
+                        <input type="color" id="effectColourPicker"  class="colourpicker" value="#ffffff">
+                    </div>
+                     <div class="texteffectsizeconfig">
+                            <label for="texteffectsize">Text Effect Size <span id="texteffectsizedisplay">6</span></label>
+                            <input type="range" min="0" max="40" value="6" class="slider" id="texteffectsize" onchange="
+                        document.getElementById('texteffectsizedisplay').innerText = document.getElementById('texteffectsize').value;">
+                     </div>
+                </div>
+                
+
                 
                 <!-- prototype as not always going to work so don't want to confuse users -->
                 <div class="backgroundimageconfig" style="display:none">
@@ -282,13 +314,207 @@ function Renderer() {
         return lines;
     }
 
-    function renderLines(ctx, lines, x, y, lineHeight) {
+    function TextRenderer(){
+        var config;
 
-        for (var n = 0; n < lines.length; n++) {
-            ctx.fillText(lines[n], x, y);
-            y += lineHeight;
+        this.setStyle = function(aStyleConfig){
+            config=aStyleConfig;
+            return this;
+        };
+
+        this.render = function(ctx, text, x, y){
+
+            if(config.getStyle()==1){
+                textEffectOutline(ctx, text, x, y,
+                    config.getFontColour(),
+                    config.getEffectColour(),
+                    config.getEffectWidth());
+                return;
+            }
+
+            if(config.getStyle()==2){
+                textEffectShadow(ctx, text, x, y,
+                    config.getFontColour(),
+                    config.getEffectColour(),
+                    config.getEffectWidth());
+                return;
+            }
+
+            if(config.getStyle()==3){
+                textEffectGlow(ctx, text, x, y,
+                    config.getFontColour(),
+                    config.getEffectColour(),
+                    config.getEffectWidth());
+                return;
+            }
+
+            // default normal
+            //if(style==0){
+                textEffectNormal(ctx, text, x, y,
+                    config.getFontColour());
+            //}
+        };
+
+        function textEffectOutline(ctx, text, x, y, theTextColour, theOutlineColour='black', theOutlineWidth=4){
+            ctx.fillStyle = theTextColour;
+            ctx.save();
+            ctx.strokeStyle = theOutlineColour;
+            ctx.lineWidth = theOutlineWidth;
+            ctx.lineJoin="round";
+            ctx.miterLimit=2;
+            ctx.strokeText(text, x, y);
+            ctx.fillText(text, x, y);
+            ctx.restore();
         }
 
+        function textEffectNormal(ctx, text, x, y, theTextColour){
+            ctx.fillStyle = theTextColour;
+            ctx.fillText(text, x, y);
+        }
+
+        function textEffectShadow(ctx, text, x, y, theTextColour, theShadowColour='black', theShadow = 4)
+        {
+            ctx.fillStyle = theTextColour;
+            ctx.save();
+            ctx.shadowBlur = 0;
+            ctx.shadowColor = theShadowColour;
+            ctx.shadowOffsetX = theShadow;
+            ctx.shadowOffsetY = theShadow;
+            ctx.fillText(text, x, y);
+            ctx.restore();
+        }
+
+        function textEffectGlow(ctx, text, x, y, theTextColour, theGlowColour='red', theGlowSize = 10)
+        {
+            ctx.fillStyle = theTextColour;
+            ctx.save();
+            ctx.shadowBlur = theGlowSize;
+            ctx.shadowColor = theGlowColour;
+            ctx.strokeText(text, x, y);
+
+            for(let i = 0; i < 3; i++) {
+                ctx.fillText(text, x, y);
+            }
+            ctx.restore();
+        }
+    }
+
+    function TextRenderStyleConfig(){
+
+        var style=0; // 0 - normal, 1 - outline
+        var textColour="black";
+        var effectColour="white";
+        var effectWidth=4;
+
+        this.setStyle = function(styleId){
+            // 0 - normal
+            // 1 - outline
+            // 2 - shadow
+            // 3 - glow
+
+            if(isNaN(Number(styleId))){
+                style=0;
+            }else{
+                style=Number(styleId);
+            }
+            if(style>3){
+                style=3;
+            }
+            return this;
+        };
+
+        this.getStyle = function(){
+            return style;
+        };
+
+        this.setFontColour = function(aColour){
+            textColour = aColour;
+            return this;
+        };
+
+        this.getFontColour = function(){
+            return textColour;
+        };
+
+        this.setEffectColour = function(aColour){
+            effectColour = aColour;
+            return this;
+        };
+
+        this.getEffectColour = function(){
+            return effectColour;
+        };
+
+        this.setEffectWidth = function(aNumber){
+            effectWidth = aNumber;
+            return this;
+        };
+
+        this.getEffectWidth = function(){
+            return effectWidth;
+        };
+    }
+
+
+
+    https://stackoverflow.com/questions/13627111/drawing-text-with-an-outer-stroke-with-html5s-canvas
+
+    function textEffectNormal(ctx, text, x, y, theTextColour){
+        var textRenderer = new TextRenderer().setStyle(
+                    new TextRenderStyleConfig().
+                                setStyle(0).
+                                setFontColour(theTextColour));
+        textRenderer.render(ctx, text, x, y);
+    }
+
+    function textEffectOutline(ctx, text, x, y, theTextColour, theEffectColour, theEffectWidth){
+        var textRenderer = new TextRenderer().setStyle(
+            new TextRenderStyleConfig().
+            setStyle(1).
+            setFontColour(theTextColour).
+            setEffectColour(theEffectColour).
+            setEffectWidth(theEffectWidth));
+        textRenderer.render(ctx, text, x, y);
+    }
+
+    function textEffectShadow(ctx, text, x, y, theTextColour, theEffectColour, theEffectWidth){
+        var textRenderer = new TextRenderer().setStyle(
+            new TextRenderStyleConfig().
+            setStyle(2).
+            setFontColour(theTextColour).
+            setEffectColour(theEffectColour).
+            setEffectWidth(theEffectWidth));
+        textRenderer.render(ctx, text, x, y);
+    }
+
+    function textEffectGlow(ctx, text, x, y, theTextColour, theEffectColour, theEffectWidth){
+        var textRenderer = new TextRenderer().setStyle(
+            new TextRenderStyleConfig().
+            setStyle(3).
+            setFontColour(theTextColour).
+            setEffectColour(theEffectColour).
+            setEffectWidth(theEffectWidth));
+        textRenderer.render(ctx, text, x, y);
+    }
+
+    function renderLinesWithEffect(ctx, lines, x, y, lineHeight, whichEffect) {
+
+        for (var n = 0; n < lines.length; n++) {
+            switch(whichEffect) {
+                case 1:
+                    textEffectOutline(ctx, lines[n], x, y, textColor, effectColour, effectWidth);
+                    break;
+                case 2:
+                    textEffectShadow(ctx, lines[n], x, y, textColor, effectColour, effectWidth);
+                    break;
+                case 3:
+                    textEffectGlow(ctx, lines[n], x, y, textColor, effectColour, effectWidth);
+                    break;
+                default:
+                    textEffectNormal(ctx, lines[n],x,y, textColor);
+            }
+            y += lineHeight;
+        }
     }
 
     function calculateFontSizeFor(ctx, text, startFontSize, fontFamily, maxWidth, maxCharsPerLine) {
@@ -421,17 +647,18 @@ var backgroundimage;
 
         var startFontSize = 15;
 
-        if (document.getElementById("autofontsize").checked) {
+        if (autoSizeFont) {
             fontSize = calculateFontSizeFor(ctx, text, startFontSize, fontfamily, maxWidth, maxCharsPerLine);
             ctx.font = getFontConfigString(fontSize, fontfamily)
         } else {
-            fontSize = document.getElementById("fontsize").value;
+            // font is set as a global
+            //fontSize = document.getElementById("fontsize").value;
             ctx.font = getFontConfigString(fontSize, fontfamily)
         }
 
         // setFooterConfigFromTextConfig(footerConfig, fontSize, fontfamily, textColor);
 
-        ctx.fillStyle = textColor;
+
 
 
         lineHeight = ctx.measureText("X").actualBoundingBoxAscent + linespacing;
@@ -463,8 +690,8 @@ var backgroundimage;
         }
         x += border;
 
-
-        renderLines(ctx, lines, x, y, lineHeight);
+        renderLinesWithEffect(ctx, lines, x, y, lineHeight, effectStyle);
+        //renderLines(ctx, lines, x, y, lineHeight);
     }
 
     function renderFooter(ctx, text) {
@@ -477,20 +704,35 @@ var backgroundimage;
         footery = ctx.canvas.height - footery;
 
         var footer = [text];
-        renderLines(ctx, footer, footerx, footery, 0);
+        //renderLines(ctx, footer, footerx, footery, 0);
+        if(applyEffectToFooter){
+            renderLinesWithEffect(ctx, footer, footerx, footery, 0, effectStyle);
+        }else{
+            renderLinesWithEffect(ctx, footer, footerx, footery, 0, 0);
+        }
     }
 
 
 // adjustable globals
     var backColor = "#ff0000";
     var textColor = "#000000";
+
+
     var fontfamily = "Calibri";
+
+    var autoSizeFont=true;
+
     var maxCharsPerLine = 15;
     var linespacing = 30;
     var border = 100;
     var footerborder = 30;
     var sloganyadjust = 0;
     var backgroundOpacity=0;
+
+    var applyEffectToFooter = false;
+    var effectColour = "white";
+    var effectWidth = 8;
+    var effectStyle=0;
 
     var textToRender = "";
     var footerToRender = "";
@@ -543,26 +785,45 @@ var backgroundimage;
             document.getElementById("backcolorpicker").value,
             document.getElementById("textcolorpicker").value,
             document.getElementById("textfontselector").value,
+            document.getElementById("fontsize").value,
+            document.getElementById("autofontsize").checked,
             document.getElementById("maxcharsperline").value,
             document.getElementById('textlinespacing').value,
             document.getElementById('textborder').value,
             document.getElementById('footerborder').value,
             document.getElementById('sloganyadjust').value,
             document.getElementById('backgroundimageurlinput').value,
-            document.getElementById('backgroundcolouropacity').value
+            document.getElementById('backgroundcolouropacity').value,
+
+            // text effects
+            document.getElementById('texteffectstyleselector').value,
+            document.getElementById('applyeffecttofooter').checked,
+            document.getElementById('effectColourPicker').value,
+            document.getElementById('texteffectsize').value
         )
     }
 
-    function setGlobals(useBackColor, useTextColor, font, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder, usesloganyadjust, useImageUrl, useOpacity) {
+    function setGlobals(useBackColor, useTextColor, font, useFontSize, useAutoSizeFont, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder,
+                        usesloganyadjust,
+                        useImageUrl, useOpacity,
+                        useTextEffectStyle, applyThisEffectToFooter, useEffectColour, useEffectSize
+                        ) {
 
         backColor = useBackColor;
         textColor = useTextColor;
         fontfamily = font;
+        autoSizeFont = useAutoSizeFont;
+        fontSize = parseInt(useFontSize);
         maxCharsPerLine = parseInt(useMaxCharsPerLine);
         linespacing = parseInt(useLineSpacing);
         border = parseInt(useBorder);
         footerborder = parseInt(useFooterBorder);
         sloganyadjust = parseInt(usesloganyadjust);
+
+        effectStyle= parseInt(useTextEffectStyle);
+        applyEffectToFooter = applyThisEffectToFooter;
+        effectColour = useEffectColour;
+        effectWidth = parseInt(useEffectSize);
 
         if(backgroundImageFunctionality){
             backgroundimage = useImageUrl;
