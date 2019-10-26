@@ -1,6 +1,7 @@
 /*
     Informal version tracking
 
+    20191026 - added basic font effect control - normal, outline, shadow, glow
     20191020 - added dom subtree hook to getFooterTextFrom
     20191020 - started tracking
 
