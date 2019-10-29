@@ -1,7 +1,7 @@
 /*
     Informal version tracking
 
-    20191029 - all html code events added by js, and config controlled by js min, max, value, changed label to number and  hooked slider to number
+    20191029 - all html code events added by js, and config controlled by js min, max, value, defaults, changed label to number and  hooked slider to number
     20191026 - added basic font effect control - normal, outline, shadow, glow
     20191020 - added dom subtree hook to getFooterTextFrom
     20191020 - started tracking
@@ -964,9 +964,7 @@ var backgroundimage;
 // TODO: allow a background image and an opacity for the background colour - need to catch error and make readable error for tainted image and this code needs to be programmatically activated as an advanced mode (tried copying into intermediate canvas but that didn't work)
 // TODO: when image and opacity is available allow 'margin' for the background colour to adjust amount of background image shown
 // TODO: can we pull in list of font names supported by browser rather than hard code?
-// TODO: double click on label to set default for individual value
 // TODO: make javascript control html template more configurable and code generated
-// TODO: make the 'text' display of numbers on the text render, number fields, and have them change the size of the slider when changed
 // TODOL add gradiant to canvas
 //
 // https://www.w3schools.com/colors/colors_gradient.asp
