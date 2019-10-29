@@ -1,6 +1,7 @@
 /*
     Informal version tracking
 
+    20191029 - all html code events added by js, and config controlled by js min, max, value, changed label to number and  hooked slider to number
     20191026 - added basic font effect control - normal, outline, shadow, glow
     20191020 - added dom subtree hook to getFooterTextFrom
     20191020 - started tracking
@@ -115,8 +116,6 @@ function Renderer() {
         }
 
         document.getElementById("render1024x512").addEventListener("click", function(){changerendersize(1024,512)})
-        document.getElementById("render1080x1080").addEventListener("click", function(){changerendersize(1080,1080)})
-
         document.getElementById("render1080x1080").addEventListener("click", function(){changerendersize(1080,1080)})
 
         // Slider Number Hookups and defaults
