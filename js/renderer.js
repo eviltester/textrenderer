@@ -92,12 +92,42 @@ function Renderer() {
 
     }
 
+    function showHideButtonConfigure(buttonSelector, hideSelector, shownbydefault){
+
+        var buttonElem = document.querySelector(buttonSelector);
+        var prefixText = "[-] Hide";
+        if(!shownbydefault){
+            prefixText = "[+] Show";
+            document.querySelector(hideSelector).style.display = "none";
+        }
+        buttonElem.innerText = prefixText + buttonElem.value;
+
+
+        document.querySelector(buttonSelector).addEventListener("click", function(){
+            var buttonElem = document.querySelector(buttonSelector);
+            var showHideElem=document.querySelector(hideSelector);
+            if(showHideElem.style.display=="none") {
+                showHideElem.style.display = "block";
+                buttonElem.innerText = "[-] Hide " + buttonElem.value;
+            } else {
+                showHideElem.style.display = "none";
+                buttonElem.innerText = "[+] Show " + buttonElem.value;
+            }
+        });
+    }
 
     this.displayIn = function(anId) {
         if (!document.getElementById("rendering")) {
             document.getElementById(anId).insertAdjacentHTML(
                 'beforeend', rendering_gui_html);
         }
+
+        showHideButtonConfigure("#show-hide-text-config", ".textbodyconfig", true);
+        showHideButtonConfigure("#show-hide-footer-config", ".textfooterconfig", true);
+        showHideButtonConfigure("#show-hide-colourpickers", ".colourpickers", true);
+        showHideButtonConfigure("#show-hide-texteffects", ".textEffects", false);
+        showHideButtonConfigure("#show-hide-jpgpreview", ".jpgimagepreview", false);
+
 
         document.getElementById("renderfromguibutton").addEventListener("click", renderAppText);
 
@@ -203,7 +233,7 @@ function Renderer() {
 
     function createSliderNumberHook(sliderid, numberid){
         document.getElementById(sliderid).addEventListener("change", function(){
-            setControlValueFromValue(sliderid, numberid);
+                setControlValueFromValue(sliderid, numberid);
             }
         );
         document.getElementById(numberid).addEventListener("change", function(){
@@ -264,6 +294,7 @@ function Renderer() {
                 <div class="defaultcontrol">
                     <button id="resetdefaults">Reset Defaults</button>
                 </div>
+                <div><button id="show-hide-text-config" class="showhidebutton" value="Text Config">Show Text Config</button></div>
                 <div class="textbodyconfig">
                     <div class="textbodyfontconfig">
                         <div class="textbodyfontnameconfig">
@@ -352,10 +383,14 @@ function Renderer() {
                     </div>
                 </div>
                 
+                <div><button id="show-hide-footer-config" class="showhidebutton" value="Footer Config">Show Footer Config</button></div>
+                
                 <div class="textfooterconfig">
                     <label for="footerborder">Footer Vertical Adjust <input type="number"  id="footerborderdisplay"/></label>
                     <input type="range" class="slider" id="footerborder">
                 </div>
+                
+                <div><button id="show-hide-colourpickers" class="showhidebutton" value="Colour Pickers">Show Colour Pickers</button></div>
                 
                 <div class="colourpickers">
                     <div class="backgroundcolourpicker">
@@ -368,6 +403,8 @@ function Renderer() {
                     </div>
                 </div>
                 
+                <div><button id="show-hide-texteffects" class="showhidebutton" value="Text Effects"></button></div>
+
                  <div class="textEffects">
                     <div class="texteffectstyleconfig">
                         <select id="texteffectstyleselector"">
@@ -403,6 +440,8 @@ function Renderer() {
                         <input type="text" id="backgroundcolouropacity">
                     </div>                    
                 </div>
+                
+                <div><button id="show-hide-jpgpreview" class="showhidebutton" value=".JPG Saving"></button></div>
                 
                 <div class="jpgimagepreview">
                     <p>for .jpg right click and save as below:</p>
@@ -473,8 +512,8 @@ function Renderer() {
 
             // default normal
             //if(style==0){
-                textEffectNormal(ctx, text, x, y,
-                    config.getFontColour());
+            textEffectNormal(ctx, text, x, y,
+                config.getFontColour());
             //}
         };
 
@@ -582,13 +621,13 @@ function Renderer() {
 
     https://stackoverflow.com/questions/13627111/drawing-text-with-an-outer-stroke-with-html5s-canvas
 
-    function textEffectNormal(ctx, text, x, y, theTextColour){
-        var textRenderer = new TextRenderer().setStyle(
-                    new TextRenderStyleConfig().
-                                setStyle(0).
-                                setFontColour(theTextColour));
-        textRenderer.render(ctx, text, x, y);
-    }
+        function textEffectNormal(ctx, text, x, y, theTextColour){
+            var textRenderer = new TextRenderer().setStyle(
+                new TextRenderStyleConfig().
+                setStyle(0).
+                setFontColour(theTextColour));
+            textRenderer.render(ctx, text, x, y);
+        }
 
     function textEffectOutline(ctx, text, x, y, theTextColour, theEffectColour, theEffectWidth){
         var textRenderer = new TextRenderer().setStyle(
@@ -673,7 +712,7 @@ function Renderer() {
 
 
     // may not be able to use background image for jpeg due to tainted image
-var backgroundimage;
+    var backgroundimage;
 
     function renderText(ctx, text) {
 
@@ -982,7 +1021,7 @@ var backgroundimage;
                         usesloganyadjust,
                         useImageUrl, useOpacity,
                         useTextEffectStyle, applyThisEffectToFooter, useEffectColour, useEffectSize
-                        ) {
+    ) {
 
         backColor = useBackColor;
         textColor = useTextColor;
