@@ -70,6 +70,11 @@ function Renderer() {
         textToRender = text;
     }
 
+    this.setDefaultBackgroundColor = function(colour){
+        backColor = colour;
+        document.getElementById("backcolorpicker").value = colour;
+    }
+
     this.renderNow = function(){
         renderImages();
     }
@@ -112,8 +117,87 @@ function Renderer() {
         document.getElementById("render1024x512").addEventListener("click", function(){changerendersize(1024,512)})
         document.getElementById("render1080x1080").addEventListener("click", function(){changerendersize(1080,1080)})
 
+        document.getElementById("render1080x1080").addEventListener("click", function(){changerendersize(1080,1080)})
+
+        // Slider Number Hookups and defaults
+
+        setMinMaxValue(1, 200, 15, 'fontsize', 'fontsizedisplay');
+        setMinMaxValue(1, 50, 15, 'maxcharsperline', 'maxcharsperlinedisplay');
+        setMinMaxValue(-300, 300, 0, 'sloganyadjust', 'sloganyadjustdisplay');
+        setMinMaxValue(1, 200, 30, 'textlinespacing', 'textlinespacingdisplay');
+        setMinMaxValue(1, 400, 100, 'textborder', 'textborderdisplay');
+        setMinMaxValue(-400, 500, 30, 'footerborder', 'footerborderdisplay');
+        setMinMaxValue(0, 200, 6, 'texteffectsize', 'texteffectsizedisplay');
+
+        createSliderNumberHook('fontsize', 'fontsizedisplay');
+        document.getElementById('fontsize').addEventListener("change", function(){
+                document.getElementById('autofontsize').checked=false
+            }
+        );
+        document.getElementById('fontsizedisplay').addEventListener("change", function(){
+                document.getElementById('autofontsize').checked=false
+            }
+        );
+        document.getElementById('fontsizedisplay').addEventListener("input", function(){
+                document.getElementById('autofontsize').checked=false
+            }
+        );
+        document.getElementById("fontsizedisplay").addEventListener("input", renderImages);
+        document.getElementById("fontsizedisplay").addEventListener("change", renderImages);
+
+        createSliderNumberHook('maxcharsperline', 'maxcharsperlinedisplay');
+        createSliderNumberHook('sloganyadjust', 'sloganyadjustdisplay');
+        createSliderNumberHook('textlinespacing', 'textlinespacingdisplay');
+        createSliderNumberHook('textborder', 'textborderdisplay');
+        createSliderNumberHook('footerborder', 'footerborderdisplay');
+        createSliderNumberHook('texteffectsize', 'texteffectsizedisplay');
+
+        document.getElementById("maxcharsperlinedisplay").addEventListener("change", renderImages);
+        document.getElementById("sloganyadjustdisplay").addEventListener("change", renderImages);
+        document.getElementById("textlinespacingdisplay").addEventListener("change", renderImages);
+        document.getElementById("textborderdisplay").addEventListener("change", renderImages);
+        document.getElementById("footerborderdisplay").addEventListener("change", renderImages);
+        document.getElementById("texteffectsizedisplay").addEventListener("change", renderImages);
+
+        document.getElementById("maxcharsperlinedisplay").addEventListener("input", renderImages);
+        document.getElementById("sloganyadjustdisplay").addEventListener("input", renderImages);
+        document.getElementById("textlinespacingdisplay").addEventListener("input", renderImages);
+        document.getElementById("textborderdisplay").addEventListener("input", renderImages);
+        document.getElementById("footerborderdisplay").addEventListener("input", renderImages);
+        document.getElementById("texteffectsizedisplay").addEventListener("input", renderImages);
+    }
+
+    function createSliderNumberHook(sliderid, numberid){
+        document.getElementById(sliderid).addEventListener("change", function(){
+            setControlValueFromValue(sliderid, numberid);
+            }
+        );
+        document.getElementById(numberid).addEventListener("change", function(){
+                setControlValueFromValue(numberid, sliderid);
+            }
+        );
+        document.getElementById(numberid).addEventListener("input", function(){
+                setControlValueFromValue(numberid, sliderid);
+            }
+        );
+    }
+
+    function setControlValueFromValue(fromid, toid){
+        document.getElementById(toid).value = document.getElementById(fromid).value;
+    }
+
+    function setMinMaxValue(theMin, theMax, theValue, control){
+
+        for(var x=3; x<arguments.length; x++){
+            var element = document.getElementById(arguments[x]);
+            element.setAttribute('min', theMin);
+            element.setAttribute('max', theMax);
+            element.setAttribute('value', theValue);
+        }
 
     }
+
+
 
     function changerendersize(width, height) {
         var canvas = document.getElementById("renderslogan");
@@ -194,44 +278,38 @@ function Renderer() {
                                 <input type="checkbox" id="autofontsize" checked>Auto Size
                             </div>
                             <div class="textbodyfontsizecontrol">
-                                <label for="fontsize">Font Size <span id="fontsizedisplay">15</span></label>
-                                <input type="range" min="1" max="200" value="15" class="slider" id="fontsize" onchange="
-                            document.getElementById('fontsizedisplay').innerText = document.getElementById('fontsize').value;document.getElementById('autofontsize').checked=false;">
+                                <label for="fontsize">Font Size <input type="number" id="fontsizedisplay"/></label>
+                                <input type="range" class="slider" id="fontsize">
                             </div>
 
                          </div>        
         
         
                         <div class="maxcharsperlineconfig">
-                            <label for="maxcharsperline">Max Chars Per Line <span id="maxcharsperlinedisplay">15</span></label>
-                            <input type="range" min="1" max="50" value="15" class="slider" id="maxcharsperline" onchange="
-                        document.getElementById('maxcharsperlinedisplay').innerText = document.getElementById('maxcharsperline').value;">
+                            <label for="maxcharsperline">Max Chars Per Line <input type="number" id="maxcharsperlinedisplay"/></label>
+                            <input type="range" class="slider" id="maxcharsperline">
                         </div>
                         
                         <div class="sloganyadjustconfig">
-                            <label for="sloganyadjust">Slogan Vertical Adjust <span id="sloganyadjustdisplay">0</span></label>
-                            <input type="range" min="-300" max="300" value="0" class="slider" id="sloganyadjust" onchange="
-                        document.getElementById('sloganyadjustdisplay').innerText = document.getElementById('sloganyadjust').value;">
+                            <label for="sloganyadjust">Slogan Vertical Adjust <input type="number"  id="sloganyadjustdisplay" /></label>
+                            <input type="range" class="slider" id="sloganyadjust">
                         </div>  
                                                
                         <div class="textlinespacingconfig">
-                            <label for="textlinespacing">Line Spacing <span id="textlinespacingdisplay">30</span></label>
-                            <input type="range" min="1" max="200" value="30" class="slider" id="textlinespacing" onchange="
-                        document.getElementById('textlinespacingdisplay').innerText = document.getElementById('textlinespacing').value;">
+                            <label for="textlinespacing">Line Spacing <input type="number"  id="textlinespacingdisplay"/></label>
+                            <input type="range" class="slider" id="textlinespacing">
                         </div>                        
                         
                         <div class="textborderconfig">
-                            <label for="textborder">Text Border <span id="textborderdisplay">100</span></label>
-                            <input type="range" min="1" max="400" value="100" class="slider" id="textborder" onchange="
-                        document.getElementById('textborderdisplay').innerText = document.getElementById('textborder').value;">
+                            <label for="textborder">Text Border <input type="number"  id="textborderdisplay"/></label>
+                            <input type="range" class="slider" id="textborder">
                         </div>
                     </div>
                 </div>
                 
                 <div class="textfooterconfig">
-                    <label for="footerborder">Footer Vertical Adjust <span id="footerborderdisplay">30</span></label>
-                    <input type="range" min="-400" max="500" value="30" class="slider" id="footerborder" onchange="
-                document.getElementById('footerborderdisplay').innerText = document.getElementById('footerborder').value;">
+                    <label for="footerborder">Footer Vertical Adjust <input type="number"  id="footerborderdisplay"/></label>
+                    <input type="range" class="slider" id="footerborder">
                 </div>
                 
                 <div class="colourpickers">
@@ -262,9 +340,8 @@ function Renderer() {
                         <input type="color" id="effectColourPicker"  class="colourpicker" value="#ffffff">
                     </div>
                      <div class="texteffectsizeconfig">
-                            <label for="texteffectsize">Text Effect Size <span id="texteffectsizedisplay">6</span></label>
-                            <input type="range" min="0" max="200" value="6" class="slider" id="texteffectsize" onchange="
-                        document.getElementById('texteffectsizedisplay').innerText = document.getElementById('texteffectsize').value;">
+                            <label for="texteffectsize">Text Effect Size <input type="number"  id="texteffectsizedisplay"/></label>
+                            <input type="range" class="slider" id="texteffectsize">
                      </div>
                 </div>
                 
@@ -877,8 +954,16 @@ var backgroundimage;
 // TODO: can we pull in list of font names supported by browser rather than hard code?
 // TODO: add a [default] button to set all defaults
 // TODO: double click on label to set default for individual value
-// TODO: font styles? outline text colour?
 // TODO: make javascript control html template more configurable and code generated
-
+// TODO: make the 'text' display of numbers on the text render, number fields, and have them change the size of the slider when changed
+// TODOL add gradiant to canvas
+//
+// https://www.w3schools.com/colors/colors_gradient.asp
+//
+// TODO: Initially Add 'custom css' textbox for the canvas, to allow using tools like the following to MVP canvas gradiants
+//
+// https://angrytools.com/gradient/
+//
+// Find other gradiant tools and link to them from the tool once custom css is availbel
 
 }
