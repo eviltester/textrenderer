@@ -80,6 +80,19 @@ function Renderer() {
         renderImages();
     }
 
+
+    function setTextAlign(){
+        textAlign = "left";
+        if(document.getElementById("textaligncenter").checked){
+            textAlign="center";
+        }
+        if(document.getElementById("textalignright").checked){
+            textAlign="right";
+        }
+
+    }
+
+
     this.displayIn = function(anId) {
         if (!document.getElementById("rendering")) {
             document.getElementById(anId).insertAdjacentHTML(
@@ -97,7 +110,15 @@ function Renderer() {
         document.getElementById("autofontsize").addEventListener("change", renderImages);
 
         document.getElementById("textaligncenter").addEventListener("change", function(){
-            centerSloganText=document.getElementById("textaligncenter").checked;
+            setTextAlign();
+            renderImages()
+        });
+        document.getElementById("textalignleft").addEventListener("change", function(){
+            setTextAlign();
+            renderImages()
+        });
+        document.getElementById("textalignright").addEventListener("change", function(){
+            setTextAlign();
             renderImages()
         });
 
@@ -303,7 +324,9 @@ function Renderer() {
         
                         <div class="textalignconfig">
                             <div class="textaligncenterconfig">
-                                <input type="checkbox" id="textaligncenter">Center Text
+                                  <input id="textalignleft" type="radio" name="textalign" value="left" checked>Left 
+                                  <input id="textaligncenter" type="radio" name="textalign" value="center">Center 
+                                  <input id="textalignright" type="radio" name="textalign" value="right">Right
                             </div>
                         </div>
         
@@ -599,28 +622,23 @@ function Renderer() {
 
 
 
-    function renderLinesWithEffect(ctx, lines, x, y, lineHeight, whichEffect) {
+    function renderLinesWithEffect(ctx, lines, whichEffect) {
 
         for (var n = 0; n < lines.length; n++) {
 
-            if (centerSloganText){
-                x = (ctx.canvas.width / 2) - (ctx.measureText(lines[n]).width / 2);
-            }
-
             switch(whichEffect) {
                 case 1:
-                    textEffectOutline(ctx, lines[n], x, y, textColor, effectColour, effectWidth);
+                    textEffectOutline(ctx, lines[n].text, lines[n].x, lines[n].y, textColor, effectColour, effectWidth);
                     break;
                 case 2:
-                    textEffectShadow(ctx, lines[n], x, y, textColor, effectColour, effectWidth);
+                    textEffectShadow(ctx, lines[n].text, lines[n].x, lines[n].y, textColor, effectColour, effectWidth);
                     break;
                 case 3:
-                    textEffectGlow(ctx, lines[n], x, y, textColor, effectColour, effectWidth);
+                    textEffectGlow(ctx, lines[n].text, lines[n].x, lines[n].y, textColor, effectColour, effectWidth);
                     break;
                 default:
-                    textEffectNormal(ctx, lines[n],x,y, textColor);
+                    textEffectNormal(ctx, lines[n].text, lines[n].x, lines[n].y, textColor);
             }
-            y += lineHeight;
         }
     }
 
@@ -747,6 +765,20 @@ var backgroundimage;
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
 
+    function DrawLine(){
+
+        this.x;
+        this.y;
+        this.text;
+
+        this.set = function(anX, aY, theText){
+            this.x = anX;
+            this.y = aY;
+            this.text = theText;
+            return this;
+        };
+    }
+
     function renderSlogan(ctx, text){
         // max width for the rendering
         var maxWidth = ctx.canvas.width - (border * 2);
@@ -775,14 +807,22 @@ var backgroundimage;
 
         lines = wrapText(ctx, text, maxLineWidth, lineHeight);
 
+        drawLines = [];
+
         // center text vertically
         y = (maxHeight - (lines.length * lineHeight)) / 2;
         y += sloganyadjust;
         y += border;
 
+
+        //
+        // ALIGN SLOGAN TEXT HORIZONTALLY
+        //
         // center text horizontally
         longestLength = 0;
         longestLine = 0;
+
+        // left align by default
         for (x = 0; x < lines.length; x++) {
             var lineLength = ctx.measureText(lines[x]).width;
             if (lineLength > longestLength) {
@@ -797,7 +837,31 @@ var backgroundimage;
         }
         x += border;
 
-        renderLinesWithEffect(ctx, lines, x, y, lineHeight, effectStyle);
+
+        // apply x,y to lines
+        liney=y;
+        for (var n = 0; n < lines.length; n++) {
+            switch(textAlign) {
+                case "center":
+                    x = (ctx.canvas.width / 2) - (ctx.measureText(lines[n]).width / 2);
+                    drawLines.push(new DrawLine().set(x, liney, lines[n]));
+                    break;
+                case "right":
+                    // right align
+                    x = border + longestLength - ctx.measureText(lines[n]).width;
+                    drawLines.push(new DrawLine().set(x, liney, lines[n]));
+                    break;
+                default:
+                    // left align
+                    drawLines.push(new DrawLine().set(x, liney, lines[n]));
+            }
+            liney += lineHeight;
+        }
+
+
+
+
+        renderLinesWithEffect(ctx, drawLines, effectStyle);
         //renderLines(ctx, lines, x, y, lineHeight);
     }
 
@@ -812,10 +876,12 @@ var backgroundimage;
 
         var footer = [text];
         //renderLines(ctx, footer, footerx, footery, 0);
+        var drawLines = [];
+        drawLines.push(new DrawLine().set(footerx, footery, footer));
         if(applyEffectToFooter){
-            renderLinesWithEffect(ctx, footer, footerx, footery, 0, effectStyle);
+            renderLinesWithEffect(ctx, drawLines, effectStyle);
         }else{
-            renderLinesWithEffect(ctx, footer, footerx, footery, 0, 0);
+            renderLinesWithEffect(ctx, drawLines, 0);
         }
     }
 
@@ -844,7 +910,7 @@ var backgroundimage;
     var textToRender = "";
     var footerToRender = "";
 
-    var centerSloganText = false;
+    var textAlign = "left";
 
     // // TODO: allow footer text size and font to be different from the main text
     //
