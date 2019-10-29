@@ -230,8 +230,8 @@ function Renderer() {
 
         <div>
             <div class="canvasdisplay">
-                <button id="render1080x1080">1080x1080</button>
-                <button id="render1024x512">1024x512</button>
+                <button id="render1080x1080">1080x1080 (square, instagram)</button>
+                <button id="render1024x512">1024x512 (rectangle, twitter)</button>
                 <canvas id="renderslogan" class="rendercanvas" width="1080px" height="1080px"/>
             </div>
             <div id="renderingcontrols" class="renderingcontrols">
