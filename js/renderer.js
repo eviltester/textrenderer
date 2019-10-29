@@ -404,7 +404,7 @@ function Renderer() {
                     </div>                    
                 </div>
                 
-                <div class="jpgimagepreview"
+                <div class="jpgimagepreview">
                     <p>for .jpg right click and save as below:</p>
                     <img id="renderjpg" crossorigin="anonymous" width="50px" height="50px"/>
                 </div>
