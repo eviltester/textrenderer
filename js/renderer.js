@@ -1089,6 +1089,6 @@ function Renderer() {
 // TODO: when image and opacity is available allow 'margin' for the background colour to adjust amount of background image shown
 // TODO: can we pull in list of font names supported by browser rather than hard code?
 // TODO: make javascript control html template more configurable and code generated
-// TODO: option to center text on each line rather than left align as currently
+
 
 }
