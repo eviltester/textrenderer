@@ -96,6 +96,11 @@ function Renderer() {
         document.getElementById("textfontselector").addEventListener("change", renderImages);
         document.getElementById("autofontsize").addEventListener("change", renderImages);
 
+        document.getElementById("textaligncenter").addEventListener("change", function(){
+            centerSloganText=document.getElementById("textaligncenter").checked;
+            renderImages()
+        });
+
         document.getElementById("fontsize").addEventListener("change", renderImages);
         document.getElementById("maxcharsperline").addEventListener("change", renderImages);
         document.getElementById("textlinespacing").addEventListener("change", renderImages);
@@ -296,6 +301,11 @@ function Renderer() {
 
                          </div>        
         
+                        <div class="textalignconfig">
+                            <div class="textaligncenterconfig">
+                                <input type="checkbox" id="textaligncenter">Center Text
+                            </div>
+                        </div>
         
                         <div class="maxcharsperlineconfig">
                             <label for="maxcharsperline">Max Chars Per Line <input type="number" id="maxcharsperlinedisplay"/></label>
@@ -587,9 +597,16 @@ function Renderer() {
         textRenderer.render(ctx, text, x, y);
     }
 
+
+
     function renderLinesWithEffect(ctx, lines, x, y, lineHeight, whichEffect) {
 
         for (var n = 0; n < lines.length; n++) {
+
+            if (centerSloganText){
+                x = (ctx.canvas.width / 2) - (ctx.measureText(lines[n]).width / 2);
+            }
+
             switch(whichEffect) {
                 case 1:
                     textEffectOutline(ctx, lines[n], x, y, textColor, effectColour, effectWidth);
@@ -827,6 +844,8 @@ var backgroundimage;
     var textToRender = "";
     var footerToRender = "";
 
+    var centerSloganText = false;
+
     // // TODO: allow footer text size and font to be different from the main text
     //
     // var footerConfig = {
@@ -965,14 +984,6 @@ var backgroundimage;
 // TODO: when image and opacity is available allow 'margin' for the background colour to adjust amount of background image shown
 // TODO: can we pull in list of font names supported by browser rather than hard code?
 // TODO: make javascript control html template more configurable and code generated
-// TODOL add gradiant to canvas
-//
-// https://www.w3schools.com/colors/colors_gradient.asp
-//
-// TODO: Initially Add 'custom css' textbox for the canvas, to allow using tools like the following to MVP canvas gradiants
-//
-// https://angrytools.com/gradient/
-//
-// Find other gradiant tools and link to them from the tool once custom css is availbel
+// TODO: option to center text on each line rather than left align as currently
 
 }
