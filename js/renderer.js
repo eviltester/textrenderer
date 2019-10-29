@@ -6,6 +6,8 @@
     20191020 - added dom subtree hook to getFooterTextFrom
     20191020 - started tracking
 
+    Renderer is open source and available from: https://github.com/eviltester/textrenderer
+
 */
 
 function Renderer() {
