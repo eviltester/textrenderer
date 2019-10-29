@@ -88,6 +88,11 @@ function Renderer() {
 
         document.getElementById("renderfromguibutton").addEventListener("click", renderAppText);
 
+
+        document.getElementById("resetdefaults").addEventListener("click", function(){
+            setDefaultSliderValues(); renderImages();
+        });
+
         document.getElementById("textfontselector").addEventListener("change", renderImages);
         document.getElementById("autofontsize").addEventListener("change", renderImages);
 
@@ -120,13 +125,7 @@ function Renderer() {
 
         // Slider Number Hookups and defaults
 
-        setMinMaxValue(1, 200, 15, 'fontsize', 'fontsizedisplay');
-        setMinMaxValue(1, 50, 15, 'maxcharsperline', 'maxcharsperlinedisplay');
-        setMinMaxValue(-300, 300, 0, 'sloganyadjust', 'sloganyadjustdisplay');
-        setMinMaxValue(1, 200, 30, 'textlinespacing', 'textlinespacingdisplay');
-        setMinMaxValue(1, 400, 100, 'textborder', 'textborderdisplay');
-        setMinMaxValue(-400, 500, 30, 'footerborder', 'footerborderdisplay');
-        setMinMaxValue(0, 200, 6, 'texteffectsize', 'texteffectsizedisplay');
+        setDefaultSliderValues();
 
         createSliderNumberHook('fontsize', 'fontsizedisplay');
         document.getElementById('fontsize').addEventListener("change", function(){
@@ -166,6 +165,16 @@ function Renderer() {
         document.getElementById("texteffectsizedisplay").addEventListener("input", renderImages);
     }
 
+    function setDefaultSliderValues(){
+        setMinMaxValue(1, 200, 80, 'fontsize', 'fontsizedisplay');
+        setMinMaxValue(1, 50, 15, 'maxcharsperline', 'maxcharsperlinedisplay');
+        setMinMaxValue(-300, 300, 0, 'sloganyadjust', 'sloganyadjustdisplay');
+        setMinMaxValue(1, 200, 30, 'textlinespacing', 'textlinespacingdisplay');
+        setMinMaxValue(1, 400, 100, 'textborder', 'textborderdisplay');
+        setMinMaxValue(-400, 500, 30, 'footerborder', 'footerborderdisplay');
+        setMinMaxValue(0, 200, 6, 'texteffectsize', 'texteffectsizedisplay');
+    }
+
     function createSliderNumberHook(sliderid, numberid){
         document.getElementById(sliderid).addEventListener("change", function(){
             setControlValueFromValue(sliderid, numberid);
@@ -192,8 +201,9 @@ function Renderer() {
             element.setAttribute('min', theMin);
             element.setAttribute('max', theMax);
             element.setAttribute('value', theValue);
+            // force display change
+            element.value = theValue;
         }
-
     }
 
 
@@ -225,6 +235,9 @@ function Renderer() {
                 <canvas id="renderslogan" class="rendercanvas" width="1080px" height="1080px"/>
             </div>
             <div id="renderingcontrols" class="renderingcontrols">
+                <div class="defaultcontrol">
+                    <button id="resetdefaults">Reset Defaults</button>
+                </div>
                 <div class="textbodyconfig">
                     <div class="textbodyfontconfig">
                         <div class="textbodyfontnameconfig">
@@ -951,7 +964,6 @@ var backgroundimage;
 // TODO: allow a background image and an opacity for the background colour - need to catch error and make readable error for tainted image and this code needs to be programmatically activated as an advanced mode (tried copying into intermediate canvas but that didn't work)
 // TODO: when image and opacity is available allow 'margin' for the background colour to adjust amount of background image shown
 // TODO: can we pull in list of font names supported by browser rather than hard code?
-// TODO: add a [default] button to set all defaults
 // TODO: double click on label to set default for individual value
 // TODO: make javascript control html template more configurable and code generated
 // TODO: make the 'text' display of numbers on the text render, number fields, and have them change the size of the slider when changed
