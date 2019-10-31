@@ -83,176 +83,9 @@ function Renderer() {
 
     }
 
-    function showHideButtonConfigure(buttonSelector, hideSelector, shownbydefault){
-
-        var buttonElem = document.querySelector(buttonSelector);
-        var prefixText = "[-] Hide";
-        if(!shownbydefault){
-            prefixText = "[+] Show";
-            document.querySelector(hideSelector).style.display = "none";
-        }
-        buttonElem.innerText = prefixText + buttonElem.value;
-
-
-        document.querySelector(buttonSelector).addEventListener("click", function(){
-            var buttonElem = document.querySelector(buttonSelector);
-            var showHideElem=document.querySelector(hideSelector);
-            if(showHideElem.style.display=="none") {
-                showHideElem.style.display = "block";
-                buttonElem.innerText = "[-] Hide " + buttonElem.value;
-            } else {
-                showHideElem.style.display = "none";
-                buttonElem.innerText = "[+] Show " + buttonElem.value;
-            }
-        });
-    }
-
     this.displayIn = function(anId) {
-        if (!document.getElementById("rendering")) {
-            document.getElementById(anId).insertAdjacentHTML(
-                'beforeend', new GuiHtml().html());
-        }
-
-        showHideButtonConfigure("#show-hide-text-config", ".textbodyconfig", true);
-        showHideButtonConfigure("#show-hide-footer-config", ".textfooterconfig", true);
-        showHideButtonConfigure("#show-hide-colourpickers", ".colourpickers", true);
-        showHideButtonConfigure("#show-hide-texteffects", ".textEffects", false);
-        showHideButtonConfigure("#show-hide-jpgpreview", ".jpgimagepreview", false);
-
-
-        document.getElementById("renderfromguibutton").addEventListener("click", renderAppText);
-
-
-        document.getElementById("resetdefaults").addEventListener("click", function(){
-            setDefaultSliderValues(); renderImages();
-        });
-
-        document.getElementById("textfontselector").addEventListener("change", renderImages);
-        document.getElementById("autofontsize").addEventListener("change", renderImages);
-
-        document.getElementById("textaligncenter").addEventListener("change", function(){
-            setTextAlign();
-            renderImages()
-        });
-        document.getElementById("textalignleft").addEventListener("change", function(){
-            setTextAlign();
-            renderImages()
-        });
-        document.getElementById("textalignright").addEventListener("change", function(){
-            setTextAlign();
-            renderImages()
-        });
-
-        document.getElementById("fontsize").addEventListener("change", renderImages);
-        document.getElementById("maxcharsperline").addEventListener("change", renderImages);
-        document.getElementById("textlinespacing").addEventListener("change", renderImages);
-        document.getElementById("textborder").addEventListener("change", renderImages);
-        document.getElementById("footerborder").addEventListener("change", renderImages);
-        document.getElementById("backcolorpicker").addEventListener("change", renderImages);
-        document.getElementById("textcolorpicker").addEventListener("change", renderImages);
-        document.getElementById("sloganyadjust").addEventListener("change", renderImages);
-
-        document.getElementById("texteffectstyleselector").addEventListener("change", renderImages);
-        document.getElementById("applyeffecttofooter").addEventListener("change", renderImages);
-        document.getElementById("effectColourPicker").addEventListener("change", renderImages);
-        document.getElementById("texteffectsize").addEventListener("change", renderImages);
-
-        if(backgroundImageFunctionality){
-            document.querySelector(".backgroundimageconfig").style.display = "block"; // show controls
-            document.getElementById("backgroundimageurlinput").addEventListener("change", renderImages);
-            // opacity of background colour
-            document.getElementById("backgroundcolouropacity").addEventListener("change", renderImages);
-            // todo: border of background colour
-            // todo: yoffset of background colour
-            // todo: center image (which would also use image padding)
-        }
-
-        document.getElementById("render1024x512").addEventListener("click", function(){changerendersize(1024,512)})
-        document.getElementById("render1080x1080").addEventListener("click", function(){changerendersize(1080,1080)})
-
-        // Slider Number Hookups and defaults
-
-        setDefaultSliderValues();
-
-        createSliderNumberHook('fontsize', 'fontsizedisplay');
-        document.getElementById('fontsize').addEventListener("change", function(){
-                document.getElementById('autofontsize').checked=false
-            }
-        );
-        document.getElementById('fontsizedisplay').addEventListener("change", function(){
-                document.getElementById('autofontsize').checked=false
-            }
-        );
-        document.getElementById('fontsizedisplay').addEventListener("input", function(){
-                document.getElementById('autofontsize').checked=false
-            }
-        );
-        document.getElementById("fontsizedisplay").addEventListener("input", renderImages);
-        document.getElementById("fontsizedisplay").addEventListener("change", renderImages);
-
-        createSliderNumberHook('maxcharsperline', 'maxcharsperlinedisplay');
-        createSliderNumberHook('sloganyadjust', 'sloganyadjustdisplay');
-        createSliderNumberHook('textlinespacing', 'textlinespacingdisplay');
-        createSliderNumberHook('textborder', 'textborderdisplay');
-        createSliderNumberHook('footerborder', 'footerborderdisplay');
-        createSliderNumberHook('texteffectsize', 'texteffectsizedisplay');
-
-        document.getElementById("maxcharsperlinedisplay").addEventListener("change", renderImages);
-        document.getElementById("sloganyadjustdisplay").addEventListener("change", renderImages);
-        document.getElementById("textlinespacingdisplay").addEventListener("change", renderImages);
-        document.getElementById("textborderdisplay").addEventListener("change", renderImages);
-        document.getElementById("footerborderdisplay").addEventListener("change", renderImages);
-        document.getElementById("texteffectsizedisplay").addEventListener("change", renderImages);
-
-        document.getElementById("maxcharsperlinedisplay").addEventListener("input", renderImages);
-        document.getElementById("sloganyadjustdisplay").addEventListener("input", renderImages);
-        document.getElementById("textlinespacingdisplay").addEventListener("input", renderImages);
-        document.getElementById("textborderdisplay").addEventListener("input", renderImages);
-        document.getElementById("footerborderdisplay").addEventListener("input", renderImages);
-        document.getElementById("texteffectsizedisplay").addEventListener("input", renderImages);
+        new GuiConfigurator().displayIn(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality);
     }
-
-    function setDefaultSliderValues(){
-        setMinMaxValue(1, 200, 80, 'fontsize', 'fontsizedisplay');
-        setMinMaxValue(1, 50, 15, 'maxcharsperline', 'maxcharsperlinedisplay');
-        setMinMaxValue(-300, 300, 0, 'sloganyadjust', 'sloganyadjustdisplay');
-        setMinMaxValue(1, 200, 30, 'textlinespacing', 'textlinespacingdisplay');
-        setMinMaxValue(1, 400, 100, 'textborder', 'textborderdisplay');
-        setMinMaxValue(-400, 500, 30, 'footerborder', 'footerborderdisplay');
-        setMinMaxValue(0, 200, 6, 'texteffectsize', 'texteffectsizedisplay');
-    }
-
-    function createSliderNumberHook(sliderid, numberid){
-        document.getElementById(sliderid).addEventListener("change", function(){
-                setControlValueFromValue(sliderid, numberid);
-            }
-        );
-        document.getElementById(numberid).addEventListener("change", function(){
-                setControlValueFromValue(numberid, sliderid);
-            }
-        );
-        document.getElementById(numberid).addEventListener("input", function(){
-                setControlValueFromValue(numberid, sliderid);
-            }
-        );
-    }
-
-    function setControlValueFromValue(fromid, toid){
-        document.getElementById(toid).value = document.getElementById(fromid).value;
-    }
-
-    function setMinMaxValue(theMin, theMax, theValue, control){
-
-        for(var x=3; x<arguments.length; x++){
-            var element = document.getElementById(arguments[x]);
-            element.setAttribute('min', theMin);
-            element.setAttribute('max', theMax);
-            element.setAttribute('value', theValue);
-            // force display change
-            element.value = theValue;
-        }
-    }
-
 
 
     function changerendersize(width, height) {
@@ -267,8 +100,6 @@ function Renderer() {
 
         renderImages();
     }
-
-
 
 
 
@@ -447,23 +278,17 @@ function Renderer() {
 
         }else{
             renderBackgroundColour(ctx);
+
+            if(backgroundShape){
+                backgroundShape.drawShape(ctx);
+            }
+
             renderSlogan(ctx, text);
         }
     }
 
 
-    function hexToRgb(hex, alpha) {
-        hex   = hex.replace('#', '');
-        var r = parseInt(hex.length == 3 ? hex.slice(0, 1).repeat(2) : hex.slice(0, 2), 16);
-        var g = parseInt(hex.length == 3 ? hex.slice(1, 2).repeat(2) : hex.slice(2, 4), 16);
-        var b = parseInt(hex.length == 3 ? hex.slice(2, 3).repeat(2) : hex.slice(4, 6), 16);
-        if ( alpha ) {
-            return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
-        }
-        else {
-            return 'rgb(' + r + ', ' + g + ', ' + b + ')';
-        }
-    }
+
 
     function renderBackgroundColour(ctx, overridecolor){
 
@@ -473,7 +298,7 @@ function Renderer() {
         }else {
             // opacity test
             if(backgroundImageFunctionality) {
-                ctx.fillStyle = hexToRgb(backColor, backgroundOpacity);
+                ctx.fillStyle = new ColourConvertor().hexToRgb(backColor, backgroundOpacity);
             }else {
                 ctx.fillStyle = backColor;
             }
@@ -616,6 +441,7 @@ function Renderer() {
     var footerToRender = "";
 
     var textAlign = "left";
+    var backgroundShape = undefined;
 
     // // TODO: allow footer text size and font to be different from the main text
     //
@@ -680,7 +506,18 @@ function Renderer() {
             document.getElementById('applyeffecttofooter').checked,
             document.getElementById('effectColourPicker').value,
             document.getElementById('texteffectsize').value
-        )
+        );
+        // TODO: rework this, created new extract because it was getting too big
+        setBackGroundShapeGlobals(
+            document.getElementById("shapeConfigShape1RenderIt").checked,
+            document.getElementById("shapeColourPickerShape1").value,
+                document.getElementById("shapeConfigXShape1").value,
+                document.getElementById("shapeConfigYShape1").value,
+                document.getElementById("shapeConfigWidthShape1").value,
+                document.getElementById("shapeConfigHeightShape1").value,
+                document.getElementById("shapeConfigOpacityShape1").value,
+                document.getElementById("shapeConfigAngleShape1").value
+        );
     }
 
     function setGlobals(useBackColor, useTextColor, font, useFontSize, useAutoSizeFont, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder,
@@ -714,6 +551,22 @@ function Renderer() {
         }
     }
 
+    function setBackGroundShapeGlobals(showShape, useColour, useX, useY, useWidth, useHeight, useOpacity, useAngle){
+        if(!showShape){
+            backgroundShape=undefined;
+            return;
+        }
+
+        backgroundShape = new ShapeDraw().
+                            defineRect(
+                                parseInt(useX),
+                                parseInt(useY),
+                                parseInt(useWidth),
+                                parseInt(useHeight),
+                                parseInt(useAngle),
+                                useColour,
+                                parseInt(useOpacity)/100);
+    }
 
     function renderTextAndFooter() {
         var canvas = document.getElementById('renderslogan');

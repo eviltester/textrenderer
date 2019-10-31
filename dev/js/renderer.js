@@ -159,7 +159,52 @@ function GuiHtml(){
                             <input type="range" class="slider" id="texteffectsize">
                      </div>
                 </div>
-                
+
+                <div><button id="show-hide-background-shape" class="showhidebutton" value="Background Shapes Config"></button></div>
+
+                <div class="backgroundshapes">
+                    <div class="ashapeconfig">
+                        <div class="ashapeconfigdisplayshape">
+                            <input type="checkbox" id="shapeConfigShape1RenderIt">Display Background Shape?
+                        </div>
+                        <div class="shapestyle">
+                            <!--
+                            <select class="shapestyleselect">
+                                <option value="rect" selected>Rectangle</option>
+                                <option value="circle">Circle</option>
+                            </select>
+                            -->
+                        </div>
+                        <div class="shapeConfigColourPicker">
+                            <label for="shapeColourPickerShape1" class="colourpickerlabel">Shape Fill Colour</label>
+                            <input type="color" id="shapeColourPickerShape1"  class="colourpicker" value="#ffffff">
+                        </div>
+                        <div class="shapeConfigXPos">
+                            <label for="shapeConfigXShape1">X <input type="number"  id="shapeConfigXShape1Display"/></label>
+                            <input type="range" class="slider" id="shapeConfigXShape1">
+                        </div>
+                        <div class="shapeConfigYPos">
+                            <label for="shapeConfigYShape1">Y <input type="number"  id="shapeConfigYShape1Display"/></label>
+                            <input type="range" class="slider" id="shapeConfigYShape1">
+                        </div>
+                        <div class="shapeConfigWidthPos">
+                            <label for="shapeConfigWidthShape1">Width <input type="number"  id="shapeConfigWidthShape1Display"/></label>
+                            <input type="range" class="slider" id="shapeConfigWidthShape1">
+                        </div>
+                        <div class="shapeConfigHeightPos">
+                            <label for="shapeConfigHeightShape1">Height <input type="number"  id="shapeConfigHeightShape1Display"/></label>
+                            <input type="range" class="slider" id="shapeConfigHeightShape1">
+                        </div>
+                        <div class="shapeConfigOpacity">
+                            <label for="shapeConfigOpacityShape1">Opacity <input type="number"  id="shapeConfigOpacityShape1Display"/></label>
+                            <input type="range" class="slider" id="shapeConfigOpacityShape1">
+                        </div>
+                        <div class="shapeConfigAngle">
+                            <label for="shapeConfigAngleShape1">Angle <input type="number"  id="shapeConfigAngleShape1Display"/></label>
+                            <input type="range" class="slider" id="shapeConfigAngleShape1">
+                        </div>
+                    </div>
+                </div>
 
                 
                 <!-- prototype as not always going to work so don't want to confuse users -->
@@ -204,7 +249,65 @@ function DrawLine(){
     };
 }
 
+function ColourConvertor(){
 
+    this.hexToRgb = function (hex, alpha) {
+        hex   = hex.replace('#', '');
+        var r = parseInt(hex.length == 3 ? hex.slice(0, 1).repeat(2) : hex.slice(0, 2), 16);
+        var g = parseInt(hex.length == 3 ? hex.slice(1, 2).repeat(2) : hex.slice(2, 4), 16);
+        var b = parseInt(hex.length == 3 ? hex.slice(2, 3).repeat(2) : hex.slice(4, 6), 16);
+        if ( alpha ) {
+            return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+        }
+        else {
+            return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+        }
+    }
+}function ShapeDraw(){
+
+    this.x=0;
+    this.y=0;
+
+    // rect
+    // ellipse
+    this.shape = "rect";
+
+    this.width=0;
+    this.height=0;
+
+    this.angle=0;
+
+    this.fillcolour="black";
+    this.fillOpacity=1;
+
+    this.lineColour;
+    this.lineWidth;
+
+    this.defineRect = function(anX, anY, aWidth, aHeight, anAngle, aColour, anOpacity){
+        this.x = anX;
+        this.y = anY;
+        this.width = aWidth;
+        this.height = aHeight;
+        this.angle = anAngle;
+        this.fillcolour = aColour;
+        this.fillOpacity = anOpacity;
+        return this;
+    }
+
+    this.drawShape = function(ctx){
+        ctx.save();
+        ctx.fillStyle = new ColourConvertor().hexToRgb(this.fillcolour, this.fillOpacity);
+        if(this.angle > 0){
+            xoffset = this.x + this.width /2; // center x
+            yoffset = this.y + this.height /2; // center y
+            ctx.translate(xoffset, yoffset);
+            ctx.rotate(this.angle * Math.PI / 180); // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/rotate
+            ctx.translate(-xoffset, -yoffset);
+        }
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.restore();
+    }
+}
 function TextRenderer(){
     var config;
 
@@ -347,90 +450,7 @@ function TextRenderStyleConfig(){
         return effectWidth;
     };
 }
-
-function Renderer() {
-
-    var idForTextValue;
-
-    // supports hooking an event on to a field with a value, and a field with innerText modification
-    this.getTextFrom =function(anId){
-        idForTextValue = anId;
-        var elem = document.getElementById(anId);
-        if(elem.value==undefined){
-            // it doesn't seem to have a value so check for dom tree modifications and innerText
-            document.getElementById(anId).addEventListener("DOMSubtreeModified",
-                function(){
-                    textToRender =  document.getElementById(anId).innerText;
-                    renderImages();
-                }
-            );
-        }else {
-            // it has a value, use that
-            document.getElementById(anId).addEventListener("change",
-                function () {
-                    textToRender = document.getElementById(anId).value;
-                    renderImages();
-                }
-            );
-        }
-    }
-
-    var idForFooterTextValue;
-    this.getFooterTextFrom =function(anId){
-        idForFooterTextValue = anId;
-        var elem = document.getElementById(anId);
-        if(elem.value==undefined){
-            // it doesn't seem to have a value so check for dom tree modifications and innerText
-            document.getElementById(anId).addEventListener("DOMSubtreeModified",
-                function(){
-                    footerToRender =  document.getElementById(anId).innerText;
-                    renderImages();
-                }
-            );
-        }else {
-            // it has a value, use that
-            document.getElementById(anId).addEventListener("change",
-                function () {
-                    footerToRender = document.getElementById(anId).value;
-                    renderImages();
-                }
-            );
-        }
-    }
-
-    this.setFooterText = function(text){
-        footerToRender = text;
-    }
-
-    var backgroundImageFunctionality=false;
-    this.backgroundImageFunctionalityEnabled = function(aboolean){
-        backgroundImageFunctionality = aboolean;
-    }
-
-    this.setTextToRender = function(text){
-        textToRender = text;
-    }
-
-    this.setDefaultBackgroundColor = function(colour){
-        backColor = colour;
-        document.getElementById("backcolorpicker").value = colour;
-    }
-
-    this.renderNow = function(){
-        renderImages();
-    }
-
-
-    function setTextAlign(){
-        textAlign = "left";
-        if(document.getElementById("textaligncenter").checked){
-            textAlign="center";
-        }
-        if(document.getElementById("textalignright").checked){
-            textAlign="right";
-        }
-
-    }
+function GuiConfigurator(){
 
     function showHideButtonConfigure(buttonSelector, hideSelector, shownbydefault){
 
@@ -456,7 +476,7 @@ function Renderer() {
         });
     }
 
-    this.displayIn = function(anId) {
+    this.displayIn = function(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality) {
         if (!document.getElementById("rendering")) {
             document.getElementById(anId).insertAdjacentHTML(
                 'beforeend', new GuiHtml().html());
@@ -559,6 +579,45 @@ function Renderer() {
         document.getElementById("textborderdisplay").addEventListener("input", renderImages);
         document.getElementById("footerborderdisplay").addEventListener("input", renderImages);
         document.getElementById("texteffectsizedisplay").addEventListener("input", renderImages);
+
+
+        // TODO: this shows we still have some work to do to make setting up the GUI simpler for event hooks
+        // look instead for elements under an element of different types
+        showHideButtonConfigure("#show-hide-background-shape", ".backgroundshapes", false);
+        createSliderNumberHook('shapeConfigXShape1', 'shapeConfigXShape1Display');
+        createSliderNumberHook('shapeConfigYShape1', 'shapeConfigYShape1Display');
+        createSliderNumberHook('shapeConfigWidthShape1', 'shapeConfigWidthShape1Display');
+        createSliderNumberHook('shapeConfigHeightShape1', 'shapeConfigHeightShape1Display');
+        createSliderNumberHook('shapeConfigOpacityShape1', 'shapeConfigOpacityShape1Display');
+        createSliderNumberHook('shapeConfigAngleShape1', 'shapeConfigAngleShape1Display');
+        setMinMaxValue(0, 1080, 200, 'shapeConfigXShape1', 'shapeConfigXShape1Display');
+        setMinMaxValue(0, 1080, 200, 'shapeConfigYShape1', 'shapeConfigYShape1Display');
+        setMinMaxValue(0, 1080, 200, 'shapeConfigWidthShape1', 'shapeConfigWidthShape1Display');
+        setMinMaxValue(0, 1080, 200, 'shapeConfigHeightShape1', 'shapeConfigHeightShape1Display');
+        setMinMaxValue(1, 100, 100, 'shapeConfigOpacityShape1', 'shapeConfigOpacityShape1Display');
+        setMinMaxValue(0, 360, 0, 'shapeConfigAngleShape1', 'shapeConfigAngleShape1Display');
+        document.getElementById("shapeConfigXShape1").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigYShape1").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigWidthShape1").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigHeightShape1").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigOpacityShape1").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigAngleShape1").addEventListener("change", renderImages);
+
+        document.getElementById("shapeConfigShape1RenderIt").addEventListener("change", renderImages);
+        document.getElementById("shapeColourPickerShape1").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigXShape1Display").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigYShape1Display").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigWidthShape1Display").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigHeightShape1Display").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigOpacityShape1Display").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigAngleShape1Display").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigXShape1Display").addEventListener("imput", renderImages);
+        document.getElementById("shapeConfigYShape1Display").addEventListener("imput", renderImages);
+        document.getElementById("shapeConfigWidthShape1Display").addEventListener("imput", renderImages);
+        document.getElementById("shapeConfigHeightShape1Display").addEventListener("imput", renderImages);
+        document.getElementById("shapeConfigOpacityShape1Display").addEventListener("imput", renderImages);
+        document.getElementById("shapeConfigAngleShape1Display").addEventListener("imput", renderImages);
+
     }
 
     function setDefaultSliderValues(){
@@ -590,7 +649,7 @@ function Renderer() {
         document.getElementById(toid).value = document.getElementById(fromid).value;
     }
 
-    function setMinMaxValue(theMin, theMax, theValue, control){
+    function setMinMaxValue(theMin, theMax, theValue){
 
         for(var x=3; x<arguments.length; x++){
             var element = document.getElementById(arguments[x]);
@@ -602,6 +661,94 @@ function Renderer() {
         }
     }
 
+}
+function Renderer() {
+
+    var idForTextValue;
+
+    // supports hooking an event on to a field with a value, and a field with innerText modification
+    this.getTextFrom =function(anId){
+        idForTextValue = anId;
+        var elem = document.getElementById(anId);
+        if(elem.value==undefined){
+            // it doesn't seem to have a value so check for dom tree modifications and innerText
+            document.getElementById(anId).addEventListener("DOMSubtreeModified",
+                function(){
+                    textToRender =  document.getElementById(anId).innerText;
+                    renderImages();
+                }
+            );
+        }else {
+            // it has a value, use that
+            document.getElementById(anId).addEventListener("change",
+                function () {
+                    textToRender = document.getElementById(anId).value;
+                    renderImages();
+                }
+            );
+        }
+    }
+
+    var idForFooterTextValue;
+    this.getFooterTextFrom =function(anId){
+        idForFooterTextValue = anId;
+        var elem = document.getElementById(anId);
+        if(elem.value==undefined){
+            // it doesn't seem to have a value so check for dom tree modifications and innerText
+            document.getElementById(anId).addEventListener("DOMSubtreeModified",
+                function(){
+                    footerToRender =  document.getElementById(anId).innerText;
+                    renderImages();
+                }
+            );
+        }else {
+            // it has a value, use that
+            document.getElementById(anId).addEventListener("change",
+                function () {
+                    footerToRender = document.getElementById(anId).value;
+                    renderImages();
+                }
+            );
+        }
+    }
+
+    this.setFooterText = function(text){
+        footerToRender = text;
+    }
+
+    var backgroundImageFunctionality=false;
+    this.backgroundImageFunctionalityEnabled = function(aboolean){
+        backgroundImageFunctionality = aboolean;
+    }
+
+    this.setTextToRender = function(text){
+        textToRender = text;
+    }
+
+    this.setDefaultBackgroundColor = function(colour){
+        backColor = colour;
+        document.getElementById("backcolorpicker").value = colour;
+    }
+
+    this.renderNow = function(){
+        renderImages();
+    }
+
+
+    function setTextAlign(){
+        textAlign = "left";
+        if(document.getElementById("textaligncenter").checked){
+            textAlign="center";
+        }
+        if(document.getElementById("textalignright").checked){
+            textAlign="right";
+        }
+
+    }
+
+    this.displayIn = function(anId) {
+        new GuiConfigurator().displayIn(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality);
+    }
 
 
     function changerendersize(width, height) {
@@ -616,8 +763,6 @@ function Renderer() {
 
         renderImages();
     }
-
-
 
 
 
@@ -796,23 +941,17 @@ function Renderer() {
 
         }else{
             renderBackgroundColour(ctx);
+
+            if(backgroundShape){
+                backgroundShape.drawShape(ctx);
+            }
+
             renderSlogan(ctx, text);
         }
     }
 
 
-    function hexToRgb(hex, alpha) {
-        hex   = hex.replace('#', '');
-        var r = parseInt(hex.length == 3 ? hex.slice(0, 1).repeat(2) : hex.slice(0, 2), 16);
-        var g = parseInt(hex.length == 3 ? hex.slice(1, 2).repeat(2) : hex.slice(2, 4), 16);
-        var b = parseInt(hex.length == 3 ? hex.slice(2, 3).repeat(2) : hex.slice(4, 6), 16);
-        if ( alpha ) {
-            return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
-        }
-        else {
-            return 'rgb(' + r + ', ' + g + ', ' + b + ')';
-        }
-    }
+
 
     function renderBackgroundColour(ctx, overridecolor){
 
@@ -822,7 +961,7 @@ function Renderer() {
         }else {
             // opacity test
             if(backgroundImageFunctionality) {
-                ctx.fillStyle = hexToRgb(backColor, backgroundOpacity);
+                ctx.fillStyle = new ColourConvertor().hexToRgb(backColor, backgroundOpacity);
             }else {
                 ctx.fillStyle = backColor;
             }
@@ -965,6 +1104,7 @@ function Renderer() {
     var footerToRender = "";
 
     var textAlign = "left";
+    var backgroundShape = undefined;
 
     // // TODO: allow footer text size and font to be different from the main text
     //
@@ -1029,7 +1169,18 @@ function Renderer() {
             document.getElementById('applyeffecttofooter').checked,
             document.getElementById('effectColourPicker').value,
             document.getElementById('texteffectsize').value
-        )
+        );
+        // TODO: rework this, created new extract because it was getting too big
+        setBackGroundShapeGlobals(
+            document.getElementById("shapeConfigShape1RenderIt").checked,
+            document.getElementById("shapeColourPickerShape1").value,
+                document.getElementById("shapeConfigXShape1").value,
+                document.getElementById("shapeConfigYShape1").value,
+                document.getElementById("shapeConfigWidthShape1").value,
+                document.getElementById("shapeConfigHeightShape1").value,
+                document.getElementById("shapeConfigOpacityShape1").value,
+                document.getElementById("shapeConfigAngleShape1").value
+        );
     }
 
     function setGlobals(useBackColor, useTextColor, font, useFontSize, useAutoSizeFont, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder,
@@ -1063,6 +1214,22 @@ function Renderer() {
         }
     }
 
+    function setBackGroundShapeGlobals(showShape, useColour, useX, useY, useWidth, useHeight, useOpacity, useAngle){
+        if(!showShape){
+            backgroundShape=undefined;
+            return;
+        }
+
+        backgroundShape = new ShapeDraw().
+                            defineRect(
+                                parseInt(useX),
+                                parseInt(useY),
+                                parseInt(useWidth),
+                                parseInt(useHeight),
+                                parseInt(useAngle),
+                                useColour,
+                                parseInt(useOpacity)/100);
+    }
 
     function renderTextAndFooter() {
         var canvas = document.getElementById('renderslogan');
