@@ -1,0 +1,172 @@
+    <div id="rendering">
+
+        <button id="renderfromguibutton">RENDER</button>
+        <br/>
+
+        <div>
+            <div class="canvasdisplay">
+                <button id="render1080x1080">1080x1080 (square, instagram)</button>
+                <button id="render1024x512">1024x512 (rectangle, twitter)</button>
+                <canvas id="renderslogan" class="rendercanvas" width="1080px" height="1080px"/>
+            </div>
+            <div id="renderingcontrols" class="renderingcontrols">
+                <div class="defaultcontrol">
+                    <button id="resetdefaults">Reset Defaults</button>
+                </div>
+                <div><button id="show-hide-text-config" class="showhidebutton" value="Text Config">Show Text Config</button></div>
+                <div class="textbodyconfig">
+                    <div class="textbodyfontconfig">
+                        <div class="textbodyfontnameconfig">
+                            <select id="textfontselector">
+                                <!-- https://www.w3schools.com/cssref/css_websafe_fonts.asp -->
+                                <option value="serif">serif</option>
+                                <option value="georgia">Georgia</option>
+                                <option value="palatino">Palatino</option>
+                                <option value="palatino linotype">Palatino Linotype</option>
+                                <option value="book antiqua">Book Antiqua</option>
+                                <option value="times new roman">Times New Roman</option>
+                                <option value="times">Times</option>
+            
+                                <option value="sans serif">---</option>
+                                <option value="sans serif">sans serif</option>
+                                <option value="arial">Arial</option>
+                                <option value="helvetica">Helvetica</option>
+                                <option value="arial black">Arial Black</option>
+                                <option value="gadget">Gadget</option>
+                                <option value="comic sans ms">Comic Sans MS</option>
+                                <option value="cursive">Cursive</option>
+                                <option value="impact">Impact</option>
+                                <option value="charcoal">Charcoal</option>
+                                <option value="lucida sans unicode">Lucida Sans Unicode</option>
+                                <option value="lucida grande">Lucida Grande</option>
+                                <option value="tahoma">Tahoma</option>
+                                <option value="geneva">Geneva</option>
+                                <option value="trebuchet ms">Trebuchet MS</option>
+                                <option value="verdana">Verdana</option>
+            
+                                <option value="monospace">---</option>
+                                <option value="monospace">monospace</option>
+                                <option value="courier new">Courier New</option>
+                                <option value="courier">Courier</option>
+                                <option value="monaco">Monaco</option>
+                                <option value="lucida console">Lucida Console</option>
+            
+                                <option value="roboto">---</option>
+                                <option value="roboto">Roboto</option>
+                                <option value="garamond">Garamond</option>
+                                <option value="bookman">Bookman</option>
+                                <option value="candara">Candara</option>
+                                <option value="calibri">Calibri</option>
+            
+                            </select>
+                        </div>
+                    
+                        <div class="textbodyfontsizeconfig">
+                            <div class="textbodyfontsizeautocontrol">
+                                <input type="checkbox" id="autofontsize" checked>Auto Size
+                            </div>
+                            <div class="textbodyfontsizecontrol">
+                                <label for="fontsize">Font Size <input type="number" id="fontsizedisplay"/></label>
+                                <input type="range" class="slider" id="fontsize">
+                            </div>
+
+                         </div>        
+        
+                        <div class="textalignconfig">
+                            <div class="textaligncenterconfig">
+                                  <input id="textalignleft" type="radio" name="textalign" value="left" checked>Left 
+                                  <input id="textaligncenter" type="radio" name="textalign" value="center">Center 
+                                  <input id="textalignright" type="radio" name="textalign" value="right">Right
+                            </div>
+                        </div>
+        
+                        <div class="maxcharsperlineconfig">
+                            <label for="maxcharsperline">Max Chars Per Line <input type="number" id="maxcharsperlinedisplay"/></label>
+                            <input type="range" class="slider" id="maxcharsperline">
+                        </div>
+                        
+                        <div class="sloganyadjustconfig">
+                            <label for="sloganyadjust">Slogan Vertical Adjust <input type="number"  id="sloganyadjustdisplay" /></label>
+                            <input type="range" class="slider" id="sloganyadjust">
+                        </div>  
+                                               
+                        <div class="textlinespacingconfig">
+                            <label for="textlinespacing">Line Spacing <input type="number"  id="textlinespacingdisplay"/></label>
+                            <input type="range" class="slider" id="textlinespacing">
+                        </div>                        
+                        
+                        <div class="textborderconfig">
+                            <label for="textborder">Text Border <input type="number"  id="textborderdisplay"/></label>
+                            <input type="range" class="slider" id="textborder">
+                        </div>
+                    </div>
+                </div>
+                
+                <div><button id="show-hide-footer-config" class="showhidebutton" value="Footer Config">Show Footer Config</button></div>
+                
+                <div class="textfooterconfig">
+                    <label for="footerborder">Footer Vertical Adjust <input type="number"  id="footerborderdisplay"/></label>
+                    <input type="range" class="slider" id="footerborder">
+                </div>
+                
+                <div><button id="show-hide-colourpickers" class="showhidebutton" value="Colour Pickers">Show Colour Pickers</button></div>
+                
+                <div class="colourpickers">
+                    <div class="backgroundcolourpicker">
+                        <label for="backcolorpicker" class="colourpickerlabel">BackGround Colour</label>
+                        <input type="color" id="backcolorpicker"  class="colourpicker" value="#ff0000">
+                    </div>
+                    <div class="textcolourpicker">
+                        <label for="textcolorpicker" class="colourpickerlabel">Text Colour</label>
+                        <input type="color" id="textcolorpicker" value="#000000" class="colourpicker">
+                    </div>
+                </div>
+                
+                <div><button id="show-hide-texteffects" class="showhidebutton" value="Text Effects"></button></div>
+
+                 <div class="textEffects">
+                    <div class="texteffectstyleconfig">
+                        <select id="texteffectstyleselector">
+                            <option value="0" selected>Normal</option>
+                            <option value="1">Outline</option>
+                            <option value="2">Shadow</option>
+                            <option value="3">Glow</option>
+                        </select>
+                    </div>
+                   <div class="applyeffecttofooterconfig">
+                        <input type="checkbox" id="applyeffecttofooter">Apply Effect To Footer?
+                    </div>
+                    <div class="textEffectColourPicker">
+                        <label for="effectColourPicker" class="colourpickerlabel">Text Effect Colour</label>
+                        <input type="color" id="effectColourPicker"  class="colourpicker" value="#ffffff">
+                    </div>
+                     <div class="texteffectsizeconfig">
+                            <label for="texteffectsize">Text Effect Size <input type="number"  id="texteffectsizedisplay"/></label>
+                            <input type="range" class="slider" id="texteffectsize">
+                     </div>
+                </div>
+                
+
+                
+                <!-- prototype as not always going to work so don't want to confuse users -->
+                <div class="backgroundimageconfig" style="display:none">
+                    <div class="backgroundimageurlinput">
+                        <label for="backgroundimageurlinput">Background Image Url</label>
+                        <input type="text" id="backgroundimageurlinput">
+                    </div>
+                    <div class="backgroundcolouropacity">
+                        <label for="backgroundcolouropacity">Background Colour Opacity 0 - 1</label>
+                        <input type="text" id="backgroundcolouropacity">
+                    </div>                    
+                </div>
+                
+                <div><button id="show-hide-jpgpreview" class="showhidebutton" value=".JPG Saving"></button></div>
+                
+                <div class="jpgimagepreview">
+                    <p>for .jpg right click and save as below:</p>
+                    <img id="renderjpg" crossorigin="anonymous" width="50px" height="50px"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="clear:both"></div>

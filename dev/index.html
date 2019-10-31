@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Text Renderer</title>
+
+    <link rel="stylesheet" type="text/css" href="css/renderer.css">
+    <script src="js/renderer.js"></script>
+
+</head>
+<body>
+
+<div class="contents">
+
+    <div class="input">
+        <label for="texttorender">Text To Render</label>
+        <textarea id="texttorender"></textarea>
+        <br/>
+        <label for="footer">Footer Text</label>
+        <input id="footer"/>
+    </div>
+
+
+    <div id="visualeditor">
+
+    </div>
+
+</div>
+
+<script>
+
+    const theRenderer = new Renderer();
+
+    // warning prototype code
+    //theRenderer.backgroundImageFunctionalityEnabled(true);
+
+    theRenderer.displayIn("visualeditor");
+    theRenderer.getTextFrom("texttorender");
+
+    // can set a default text
+    // theRenderer.setFooterText("EvilTester.com")
+
+
+
+    // hook GUI to component
+    theRenderer.getFooterTextFrom("footer");
+
+</script>
+
+</body>
+</html>
