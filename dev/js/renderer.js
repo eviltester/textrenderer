@@ -1,6 +1,7 @@
 /*
     Informal version tracking
 
+    20191031 - split into multiple files to make js easier to edit, side-effect html validation easier added background shape
     20191029 - all html code events added by js, and config controlled by js min, max, value, defaults, changed label to number and  hooked slider to number, text alignment
     20191026 - added basic font effect control - normal, outline, shadow, glow
     20191020 - added dom subtree hook to getFooterTextFrom
@@ -235,6 +236,8 @@ function GuiHtml(){
         return rendering_gui_html;
     };
 }
+    
+
 function DrawLine(){
 
     this.x;
@@ -263,7 +266,8 @@ function ColourConvertor(){
             return 'rgb(' + r + ', ' + g + ', ' + b + ')';
         }
     }
-}function ShapeDraw(){
+}
+function ShapeDraw(){
 
     this.x=0;
     this.y=0;
@@ -308,6 +312,8 @@ function ColourConvertor(){
         ctx.restore();
     }
 }
+
+
 function TextRenderer(){
     var config;
 
@@ -450,6 +456,7 @@ function TextRenderStyleConfig(){
         return effectWidth;
     };
 }
+
 function GuiConfigurator(){
 
     function showHideButtonConfigure(buttonSelector, hideSelector, shownbydefault){
@@ -662,6 +669,8 @@ function GuiConfigurator(){
     }
 
 }
+
+
 function Renderer() {
 
     var idForTextValue;
@@ -1271,11 +1280,13 @@ function Renderer() {
 
 
 }
+
+
 // TODO: allow a background image and an opacity for the background colour - need to catch error and make readable error for tainted image and this code needs to be programmatically activated as an advanced mode (tried copying into intermediate canvas but that didn't work) - workaround add links to png to jpg online conversion services
 // TODO: when image and opacity is available allow 'margin' for the background colour to adjust amount of background image shown
 // TODO: can we pull in list of font names supported by browser rather than hard code?
 // TODO: make javascript control html template more configurable and code generated
-// TODO: add a background shape e.g square, circle, rectangle - config colour, x, y, width, height and rotation
+// TODO: add a background circle
 // TODO: add linear gradiant background, background shape
 // TODO: add radial gradiant background, background shape
 

@@ -1,6 +1,7 @@
 /*
     Informal version tracking
 
+    20191031 - split into multiple files to make js easier to edit, side-effect html validation easier added background shape
     20191029 - all html code events added by js, and config controlled by js min, max, value, defaults, changed label to number and  hooked slider to number, text alignment
     20191026 - added basic font effect control - normal, outline, shadow, glow
     20191020 - added dom subtree hook to getFooterTextFrom
@@ -9,276 +10,7 @@
     Renderer is open source and available from: https://github.com/eviltester/textrenderer
 
 */
-
-function Renderer() {
-
-    var idForTextValue;
-
-    // supports hooking an event on to a field with a value, and a field with innerText modification
-    this.getTextFrom =function(anId){
-        idForTextValue = anId;
-        var elem = document.getElementById(anId);
-        if(elem.value==undefined){
-            // it doesn't seem to have a value so check for dom tree modifications and innerText
-            document.getElementById(anId).addEventListener("DOMSubtreeModified",
-                function(){
-                    textToRender =  document.getElementById(anId).innerText;
-                    renderImages();
-                }
-            );
-        }else {
-            // it has a value, use that
-            document.getElementById(anId).addEventListener("change",
-                function () {
-                    textToRender = document.getElementById(anId).value;
-                    renderImages();
-                }
-            );
-        }
-    }
-
-    var idForFooterTextValue;
-    this.getFooterTextFrom =function(anId){
-        idForFooterTextValue = anId;
-        var elem = document.getElementById(anId);
-        if(elem.value==undefined){
-            // it doesn't seem to have a value so check for dom tree modifications and innerText
-            document.getElementById(anId).addEventListener("DOMSubtreeModified",
-                function(){
-                    footerToRender =  document.getElementById(anId).innerText;
-                    renderImages();
-                }
-            );
-        }else {
-            // it has a value, use that
-            document.getElementById(anId).addEventListener("change",
-                function () {
-                    footerToRender = document.getElementById(anId).value;
-                    renderImages();
-                }
-            );
-        }
-    }
-
-    this.setFooterText = function(text){
-        footerToRender = text;
-    }
-
-    var backgroundImageFunctionality=false;
-    this.backgroundImageFunctionalityEnabled = function(aboolean){
-        backgroundImageFunctionality = aboolean;
-    }
-
-    this.setTextToRender = function(text){
-        textToRender = text;
-    }
-
-    this.setDefaultBackgroundColor = function(colour){
-        backColor = colour;
-        document.getElementById("backcolorpicker").value = colour;
-    }
-
-    this.renderNow = function(){
-        renderImages();
-    }
-
-
-    function setTextAlign(){
-        textAlign = "left";
-        if(document.getElementById("textaligncenter").checked){
-            textAlign="center";
-        }
-        if(document.getElementById("textalignright").checked){
-            textAlign="right";
-        }
-
-    }
-
-    function showHideButtonConfigure(buttonSelector, hideSelector, shownbydefault){
-
-        var buttonElem = document.querySelector(buttonSelector);
-        var prefixText = "[-] Hide";
-        if(!shownbydefault){
-            prefixText = "[+] Show";
-            document.querySelector(hideSelector).style.display = "none";
-        }
-        buttonElem.innerText = prefixText + buttonElem.value;
-
-
-        document.querySelector(buttonSelector).addEventListener("click", function(){
-            var buttonElem = document.querySelector(buttonSelector);
-            var showHideElem=document.querySelector(hideSelector);
-            if(showHideElem.style.display=="none") {
-                showHideElem.style.display = "block";
-                buttonElem.innerText = "[-] Hide " + buttonElem.value;
-            } else {
-                showHideElem.style.display = "none";
-                buttonElem.innerText = "[+] Show " + buttonElem.value;
-            }
-        });
-    }
-
-    this.displayIn = function(anId) {
-        if (!document.getElementById("rendering")) {
-            document.getElementById(anId).insertAdjacentHTML(
-                'beforeend', rendering_gui_html);
-        }
-
-        showHideButtonConfigure("#show-hide-text-config", ".textbodyconfig", true);
-        showHideButtonConfigure("#show-hide-footer-config", ".textfooterconfig", true);
-        showHideButtonConfigure("#show-hide-colourpickers", ".colourpickers", true);
-        showHideButtonConfigure("#show-hide-texteffects", ".textEffects", false);
-        showHideButtonConfigure("#show-hide-jpgpreview", ".jpgimagepreview", false);
-
-
-        document.getElementById("renderfromguibutton").addEventListener("click", renderAppText);
-
-
-        document.getElementById("resetdefaults").addEventListener("click", function(){
-            setDefaultSliderValues(); renderImages();
-        });
-
-        document.getElementById("textfontselector").addEventListener("change", renderImages);
-        document.getElementById("autofontsize").addEventListener("change", renderImages);
-
-        document.getElementById("textaligncenter").addEventListener("change", function(){
-            setTextAlign();
-            renderImages()
-        });
-        document.getElementById("textalignleft").addEventListener("change", function(){
-            setTextAlign();
-            renderImages()
-        });
-        document.getElementById("textalignright").addEventListener("change", function(){
-            setTextAlign();
-            renderImages()
-        });
-
-        document.getElementById("fontsize").addEventListener("change", renderImages);
-        document.getElementById("maxcharsperline").addEventListener("change", renderImages);
-        document.getElementById("textlinespacing").addEventListener("change", renderImages);
-        document.getElementById("textborder").addEventListener("change", renderImages);
-        document.getElementById("footerborder").addEventListener("change", renderImages);
-        document.getElementById("backcolorpicker").addEventListener("change", renderImages);
-        document.getElementById("textcolorpicker").addEventListener("change", renderImages);
-        document.getElementById("sloganyadjust").addEventListener("change", renderImages);
-
-        document.getElementById("texteffectstyleselector").addEventListener("change", renderImages);
-        document.getElementById("applyeffecttofooter").addEventListener("change", renderImages);
-        document.getElementById("effectColourPicker").addEventListener("change", renderImages);
-        document.getElementById("texteffectsize").addEventListener("change", renderImages);
-
-        if(backgroundImageFunctionality){
-            document.querySelector(".backgroundimageconfig").style.display = "block"; // show controls
-            document.getElementById("backgroundimageurlinput").addEventListener("change", renderImages);
-            // opacity of background colour
-            document.getElementById("backgroundcolouropacity").addEventListener("change", renderImages);
-            // todo: border of background colour
-            // todo: yoffset of background colour
-            // todo: center image (which would also use image padding)
-        }
-
-        document.getElementById("render1024x512").addEventListener("click", function(){changerendersize(1024,512)})
-        document.getElementById("render1080x1080").addEventListener("click", function(){changerendersize(1080,1080)})
-
-        // Slider Number Hookups and defaults
-
-        setDefaultSliderValues();
-
-        createSliderNumberHook('fontsize', 'fontsizedisplay');
-        document.getElementById('fontsize').addEventListener("change", function(){
-                document.getElementById('autofontsize').checked=false
-            }
-        );
-        document.getElementById('fontsizedisplay').addEventListener("change", function(){
-                document.getElementById('autofontsize').checked=false
-            }
-        );
-        document.getElementById('fontsizedisplay').addEventListener("input", function(){
-                document.getElementById('autofontsize').checked=false
-            }
-        );
-        document.getElementById("fontsizedisplay").addEventListener("input", renderImages);
-        document.getElementById("fontsizedisplay").addEventListener("change", renderImages);
-
-        createSliderNumberHook('maxcharsperline', 'maxcharsperlinedisplay');
-        createSliderNumberHook('sloganyadjust', 'sloganyadjustdisplay');
-        createSliderNumberHook('textlinespacing', 'textlinespacingdisplay');
-        createSliderNumberHook('textborder', 'textborderdisplay');
-        createSliderNumberHook('footerborder', 'footerborderdisplay');
-        createSliderNumberHook('texteffectsize', 'texteffectsizedisplay');
-
-        document.getElementById("maxcharsperlinedisplay").addEventListener("change", renderImages);
-        document.getElementById("sloganyadjustdisplay").addEventListener("change", renderImages);
-        document.getElementById("textlinespacingdisplay").addEventListener("change", renderImages);
-        document.getElementById("textborderdisplay").addEventListener("change", renderImages);
-        document.getElementById("footerborderdisplay").addEventListener("change", renderImages);
-        document.getElementById("texteffectsizedisplay").addEventListener("change", renderImages);
-
-        document.getElementById("maxcharsperlinedisplay").addEventListener("input", renderImages);
-        document.getElementById("sloganyadjustdisplay").addEventListener("input", renderImages);
-        document.getElementById("textlinespacingdisplay").addEventListener("input", renderImages);
-        document.getElementById("textborderdisplay").addEventListener("input", renderImages);
-        document.getElementById("footerborderdisplay").addEventListener("input", renderImages);
-        document.getElementById("texteffectsizedisplay").addEventListener("input", renderImages);
-    }
-
-    function setDefaultSliderValues(){
-        setMinMaxValue(1, 200, 80, 'fontsize', 'fontsizedisplay');
-        setMinMaxValue(1, 50, 15, 'maxcharsperline', 'maxcharsperlinedisplay');
-        setMinMaxValue(-300, 300, 0, 'sloganyadjust', 'sloganyadjustdisplay');
-        setMinMaxValue(1, 200, 30, 'textlinespacing', 'textlinespacingdisplay');
-        setMinMaxValue(1, 400, 100, 'textborder', 'textborderdisplay');
-        setMinMaxValue(-400, 500, 30, 'footerborder', 'footerborderdisplay');
-        setMinMaxValue(0, 200, 6, 'texteffectsize', 'texteffectsizedisplay');
-    }
-
-    function createSliderNumberHook(sliderid, numberid){
-        document.getElementById(sliderid).addEventListener("change", function(){
-                setControlValueFromValue(sliderid, numberid);
-            }
-        );
-        document.getElementById(numberid).addEventListener("change", function(){
-                setControlValueFromValue(numberid, sliderid);
-            }
-        );
-        document.getElementById(numberid).addEventListener("input", function(){
-                setControlValueFromValue(numberid, sliderid);
-            }
-        );
-    }
-
-    function setControlValueFromValue(fromid, toid){
-        document.getElementById(toid).value = document.getElementById(fromid).value;
-    }
-
-    function setMinMaxValue(theMin, theMax, theValue, control){
-
-        for(var x=3; x<arguments.length; x++){
-            var element = document.getElementById(arguments[x]);
-            element.setAttribute('min', theMin);
-            element.setAttribute('max', theMax);
-            element.setAttribute('value', theValue);
-            // force display change
-            element.value = theValue;
-        }
-    }
-
-
-
-    function changerendersize(width, height) {
-        var canvas = document.getElementById("renderslogan");
-        canvas.setAttribute("width", width + "px");
-        canvas.setAttribute("height", height + "px");
-
-        var imagePercentage = 0.04;
-        var img = document.getElementById("renderjpg");
-        img.setAttribute("width", width * imagePercentage);
-        img.setAttribute("height", height * imagePercentage);
-
-        renderImages();
-    }
-
+function GuiHtml(){
 
     const rendering_gui_html = `
     <div id="rendering">
@@ -300,7 +32,7 @@ function Renderer() {
                 <div class="textbodyconfig">
                     <div class="textbodyfontconfig">
                         <div class="textbodyfontnameconfig">
-                            <select id="textfontselector"">
+                            <select id="textfontselector">
                                 <!-- https://www.w3schools.com/cssref/css_websafe_fonts.asp -->
                                 <option value="serif">serif</option>
                                 <option value="georgia">Georgia</option>
@@ -409,7 +141,7 @@ function Renderer() {
 
                  <div class="textEffects">
                     <div class="texteffectstyleconfig">
-                        <select id="texteffectstyleselector"">
+                        <select id="texteffectstyleselector">
                             <option value="0" selected>Normal</option>
                             <option value="1">Outline</option>
                             <option value="2">Shadow</option>
@@ -428,7 +160,52 @@ function Renderer() {
                             <input type="range" class="slider" id="texteffectsize">
                      </div>
                 </div>
-                
+
+                <div><button id="show-hide-background-shape" class="showhidebutton" value="Background Shapes Config"></button></div>
+
+                <div class="backgroundshapes">
+                    <div class="ashapeconfig">
+                        <div class="ashapeconfigdisplayshape">
+                            <input type="checkbox" id="shapeConfigShape1RenderIt">Display Background Shape?
+                        </div>
+                        <div class="shapestyle">
+                            <!--
+                            <select class="shapestyleselect">
+                                <option value="rect" selected>Rectangle</option>
+                                <option value="circle">Circle</option>
+                            </select>
+                            -->
+                        </div>
+                        <div class="shapeConfigColourPicker">
+                            <label for="shapeColourPickerShape1" class="colourpickerlabel">Shape Fill Colour</label>
+                            <input type="color" id="shapeColourPickerShape1"  class="colourpicker" value="#ffffff">
+                        </div>
+                        <div class="shapeConfigXPos">
+                            <label for="shapeConfigXShape1">X <input type="number"  id="shapeConfigXShape1Display"/></label>
+                            <input type="range" class="slider" id="shapeConfigXShape1">
+                        </div>
+                        <div class="shapeConfigYPos">
+                            <label for="shapeConfigYShape1">Y <input type="number"  id="shapeConfigYShape1Display"/></label>
+                            <input type="range" class="slider" id="shapeConfigYShape1">
+                        </div>
+                        <div class="shapeConfigWidthPos">
+                            <label for="shapeConfigWidthShape1">Width <input type="number"  id="shapeConfigWidthShape1Display"/></label>
+                            <input type="range" class="slider" id="shapeConfigWidthShape1">
+                        </div>
+                        <div class="shapeConfigHeightPos">
+                            <label for="shapeConfigHeightShape1">Height <input type="number"  id="shapeConfigHeightShape1Display"/></label>
+                            <input type="range" class="slider" id="shapeConfigHeightShape1">
+                        </div>
+                        <div class="shapeConfigOpacity">
+                            <label for="shapeConfigOpacityShape1">Opacity <input type="number"  id="shapeConfigOpacityShape1Display"/></label>
+                            <input type="range" class="slider" id="shapeConfigOpacityShape1">
+                        </div>
+                        <div class="shapeConfigAngle">
+                            <label for="shapeConfigAngleShape1">Angle <input type="number"  id="shapeConfigAngleShape1Display"/></label>
+                            <input type="range" class="slider" id="shapeConfigAngleShape1">
+                        </div>
+                    </div>
+                </div>
 
                 
                 <!-- prototype as not always going to work so don't want to confuse users -->
@@ -455,6 +232,548 @@ function Renderer() {
     <div style="clear:both"></div>
 `;
 
+    this.html = function(){
+        return rendering_gui_html;
+    };
+}
+    
+
+function DrawLine(){
+
+    this.x;
+    this.y;
+    this.text;
+
+    this.set = function(anX, aY, theText){
+        this.x = anX;
+        this.y = aY;
+        this.text = theText;
+        return this;
+    };
+}
+
+function ColourConvertor(){
+
+    this.hexToRgb = function (hex, alpha) {
+        hex   = hex.replace('#', '');
+        var r = parseInt(hex.length == 3 ? hex.slice(0, 1).repeat(2) : hex.slice(0, 2), 16);
+        var g = parseInt(hex.length == 3 ? hex.slice(1, 2).repeat(2) : hex.slice(2, 4), 16);
+        var b = parseInt(hex.length == 3 ? hex.slice(2, 3).repeat(2) : hex.slice(4, 6), 16);
+        if ( alpha ) {
+            return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+        }
+        else {
+            return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+        }
+    }
+}
+function ShapeDraw(){
+
+    this.x=0;
+    this.y=0;
+
+    // rect
+    // ellipse
+    this.shape = "rect";
+
+    this.width=0;
+    this.height=0;
+
+    this.angle=0;
+
+    this.fillcolour="black";
+    this.fillOpacity=1;
+
+    this.lineColour;
+    this.lineWidth;
+
+    this.defineRect = function(anX, anY, aWidth, aHeight, anAngle, aColour, anOpacity){
+        this.x = anX;
+        this.y = anY;
+        this.width = aWidth;
+        this.height = aHeight;
+        this.angle = anAngle;
+        this.fillcolour = aColour;
+        this.fillOpacity = anOpacity;
+        return this;
+    }
+
+    this.drawShape = function(ctx){
+        ctx.save();
+        ctx.fillStyle = new ColourConvertor().hexToRgb(this.fillcolour, this.fillOpacity);
+        if(this.angle > 0){
+            xoffset = this.x + this.width /2; // center x
+            yoffset = this.y + this.height /2; // center y
+            ctx.translate(xoffset, yoffset);
+            ctx.rotate(this.angle * Math.PI / 180); // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/rotate
+            ctx.translate(-xoffset, -yoffset);
+        }
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.restore();
+    }
+}
+
+
+function TextRenderer(){
+    var config;
+
+    this.setStyle = function(aStyleConfig){
+        config=aStyleConfig;
+        return this;
+    };
+
+    this.render = function(ctx, text, x, y){
+
+        if(config.getStyle()==1){
+            textEffectOutline(ctx, text, x, y,
+                config.getFontColour(),
+                config.getEffectColour(),
+                config.getEffectWidth());
+            return;
+        }
+
+        if(config.getStyle()==2){
+            textEffectShadow(ctx, text, x, y,
+                config.getFontColour(),
+                config.getEffectColour(),
+                config.getEffectWidth());
+            return;
+        }
+
+        if(config.getStyle()==3){
+            textEffectGlow(ctx, text, x, y,
+                config.getFontColour(),
+                config.getEffectColour(),
+                config.getEffectWidth());
+            return;
+        }
+
+        // default normal
+        //if(style==0){
+        textEffectNormal(ctx, text, x, y,
+            config.getFontColour());
+        //}
+    };
+
+    function textEffectOutline(ctx, text, x, y, theTextColour, theOutlineColour='black', theOutlineWidth=4){
+        ctx.fillStyle = theTextColour;
+        ctx.save();
+        ctx.strokeStyle = theOutlineColour;
+        ctx.lineWidth = theOutlineWidth;
+        ctx.lineJoin="round";
+        ctx.miterLimit=2;
+        ctx.strokeText(text, x, y);
+        ctx.fillText(text, x, y);
+        ctx.restore();
+    }
+
+    function textEffectNormal(ctx, text, x, y, theTextColour){
+        ctx.fillStyle = theTextColour;
+        ctx.fillText(text, x, y);
+    }
+
+    function textEffectShadow(ctx, text, x, y, theTextColour, theShadowColour='black', theShadow = 4)
+    {
+        ctx.fillStyle = theTextColour;
+        ctx.save();
+        ctx.shadowBlur = 0;
+        ctx.shadowColor = theShadowColour;
+        ctx.shadowOffsetX = theShadow;
+        ctx.shadowOffsetY = theShadow;
+        ctx.fillText(text, x, y);
+        ctx.restore();
+    }
+
+    function textEffectGlow(ctx, text, x, y, theTextColour, theGlowColour='red', theGlowSize = 10)
+    {
+        ctx.fillStyle = theTextColour;
+        ctx.save();
+        ctx.shadowBlur = theGlowSize;
+        ctx.shadowColor = theGlowColour;
+        ctx.strokeText(text, x, y);
+
+        for(let i = 0; i < 3; i++) {
+            ctx.fillText(text, x, y);
+        }
+        ctx.restore();
+    }
+}
+
+
+
+function TextRenderStyleConfig(){
+
+    var style=0; // 0 - normal, 1 - outline
+    var textColour="black";
+    var effectColour="white";
+    var effectWidth=4;
+
+    this.setStyle = function(styleId){
+        // 0 - normal
+        // 1 - outline
+        // 2 - shadow
+        // 3 - glow
+
+        if(isNaN(Number(styleId))){
+            style=0;
+        }else{
+            style=Number(styleId);
+        }
+        if(style>3){
+            style=3;
+        }
+        return this;
+    };
+
+    this.getStyle = function(){
+        return style;
+    };
+
+    this.setFontColour = function(aColour){
+        textColour = aColour;
+        return this;
+    };
+
+    this.getFontColour = function(){
+        return textColour;
+    };
+
+    this.setEffectColour = function(aColour){
+        effectColour = aColour;
+        return this;
+    };
+
+    this.getEffectColour = function(){
+        return effectColour;
+    };
+
+    this.setEffectWidth = function(aNumber){
+        effectWidth = aNumber;
+        return this;
+    };
+
+    this.getEffectWidth = function(){
+        return effectWidth;
+    };
+}
+
+function GuiConfigurator(){
+
+    function showHideButtonConfigure(buttonSelector, hideSelector, shownbydefault){
+
+        var buttonElem = document.querySelector(buttonSelector);
+        var prefixText = "[-] Hide";
+        if(!shownbydefault){
+            prefixText = "[+] Show";
+            document.querySelector(hideSelector).style.display = "none";
+        }
+        buttonElem.innerText = prefixText + buttonElem.value;
+
+
+        document.querySelector(buttonSelector).addEventListener("click", function(){
+            var buttonElem = document.querySelector(buttonSelector);
+            var showHideElem=document.querySelector(hideSelector);
+            if(showHideElem.style.display=="none") {
+                showHideElem.style.display = "block";
+                buttonElem.innerText = "[-] Hide " + buttonElem.value;
+            } else {
+                showHideElem.style.display = "none";
+                buttonElem.innerText = "[+] Show " + buttonElem.value;
+            }
+        });
+    }
+
+    this.displayIn = function(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality) {
+        if (!document.getElementById("rendering")) {
+            document.getElementById(anId).insertAdjacentHTML(
+                'beforeend', new GuiHtml().html());
+        }
+
+        showHideButtonConfigure("#show-hide-text-config", ".textbodyconfig", true);
+        showHideButtonConfigure("#show-hide-footer-config", ".textfooterconfig", true);
+        showHideButtonConfigure("#show-hide-colourpickers", ".colourpickers", true);
+        showHideButtonConfigure("#show-hide-texteffects", ".textEffects", false);
+        showHideButtonConfigure("#show-hide-jpgpreview", ".jpgimagepreview", false);
+
+
+        document.getElementById("renderfromguibutton").addEventListener("click", renderAppText);
+
+
+        document.getElementById("resetdefaults").addEventListener("click", function(){
+            setDefaultSliderValues(); renderImages();
+        });
+
+        document.getElementById("textfontselector").addEventListener("change", renderImages);
+        document.getElementById("autofontsize").addEventListener("change", renderImages);
+
+        document.getElementById("textaligncenter").addEventListener("change", function(){
+            setTextAlign();
+            renderImages()
+        });
+        document.getElementById("textalignleft").addEventListener("change", function(){
+            setTextAlign();
+            renderImages()
+        });
+        document.getElementById("textalignright").addEventListener("change", function(){
+            setTextAlign();
+            renderImages()
+        });
+
+        document.getElementById("fontsize").addEventListener("change", renderImages);
+        document.getElementById("maxcharsperline").addEventListener("change", renderImages);
+        document.getElementById("textlinespacing").addEventListener("change", renderImages);
+        document.getElementById("textborder").addEventListener("change", renderImages);
+        document.getElementById("footerborder").addEventListener("change", renderImages);
+        document.getElementById("backcolorpicker").addEventListener("change", renderImages);
+        document.getElementById("textcolorpicker").addEventListener("change", renderImages);
+        document.getElementById("sloganyadjust").addEventListener("change", renderImages);
+
+        document.getElementById("texteffectstyleselector").addEventListener("change", renderImages);
+        document.getElementById("applyeffecttofooter").addEventListener("change", renderImages);
+        document.getElementById("effectColourPicker").addEventListener("change", renderImages);
+        document.getElementById("texteffectsize").addEventListener("change", renderImages);
+
+        if(backgroundImageFunctionality){
+            document.querySelector(".backgroundimageconfig").style.display = "block"; // show controls
+            document.getElementById("backgroundimageurlinput").addEventListener("change", renderImages);
+            // opacity of background colour
+            document.getElementById("backgroundcolouropacity").addEventListener("change", renderImages);
+            // todo: border of background colour
+            // todo: yoffset of background colour
+            // todo: center image (which would also use image padding)
+        }
+
+        document.getElementById("render1024x512").addEventListener("click", function(){changerendersize(1024,512)})
+        document.getElementById("render1080x1080").addEventListener("click", function(){changerendersize(1080,1080)})
+
+        // Slider Number Hookups and defaults
+
+        setDefaultSliderValues();
+
+        createSliderNumberHook('fontsize', 'fontsizedisplay');
+        document.getElementById('fontsize').addEventListener("change", function(){
+                document.getElementById('autofontsize').checked=false
+            }
+        );
+        document.getElementById('fontsizedisplay').addEventListener("change", function(){
+                document.getElementById('autofontsize').checked=false
+            }
+        );
+        document.getElementById('fontsizedisplay').addEventListener("input", function(){
+                document.getElementById('autofontsize').checked=false
+            }
+        );
+        document.getElementById("fontsizedisplay").addEventListener("input", renderImages);
+        document.getElementById("fontsizedisplay").addEventListener("change", renderImages);
+
+        createSliderNumberHook('maxcharsperline', 'maxcharsperlinedisplay');
+        createSliderNumberHook('sloganyadjust', 'sloganyadjustdisplay');
+        createSliderNumberHook('textlinespacing', 'textlinespacingdisplay');
+        createSliderNumberHook('textborder', 'textborderdisplay');
+        createSliderNumberHook('footerborder', 'footerborderdisplay');
+        createSliderNumberHook('texteffectsize', 'texteffectsizedisplay');
+
+        document.getElementById("maxcharsperlinedisplay").addEventListener("change", renderImages);
+        document.getElementById("sloganyadjustdisplay").addEventListener("change", renderImages);
+        document.getElementById("textlinespacingdisplay").addEventListener("change", renderImages);
+        document.getElementById("textborderdisplay").addEventListener("change", renderImages);
+        document.getElementById("footerborderdisplay").addEventListener("change", renderImages);
+        document.getElementById("texteffectsizedisplay").addEventListener("change", renderImages);
+
+        document.getElementById("maxcharsperlinedisplay").addEventListener("input", renderImages);
+        document.getElementById("sloganyadjustdisplay").addEventListener("input", renderImages);
+        document.getElementById("textlinespacingdisplay").addEventListener("input", renderImages);
+        document.getElementById("textborderdisplay").addEventListener("input", renderImages);
+        document.getElementById("footerborderdisplay").addEventListener("input", renderImages);
+        document.getElementById("texteffectsizedisplay").addEventListener("input", renderImages);
+
+
+        // TODO: this shows we still have some work to do to make setting up the GUI simpler for event hooks
+        // look instead for elements under an element of different types
+        showHideButtonConfigure("#show-hide-background-shape", ".backgroundshapes", false);
+        createSliderNumberHook('shapeConfigXShape1', 'shapeConfigXShape1Display');
+        createSliderNumberHook('shapeConfigYShape1', 'shapeConfigYShape1Display');
+        createSliderNumberHook('shapeConfigWidthShape1', 'shapeConfigWidthShape1Display');
+        createSliderNumberHook('shapeConfigHeightShape1', 'shapeConfigHeightShape1Display');
+        createSliderNumberHook('shapeConfigOpacityShape1', 'shapeConfigOpacityShape1Display');
+        createSliderNumberHook('shapeConfigAngleShape1', 'shapeConfigAngleShape1Display');
+        setMinMaxValue(0, 1080, 200, 'shapeConfigXShape1', 'shapeConfigXShape1Display');
+        setMinMaxValue(0, 1080, 200, 'shapeConfigYShape1', 'shapeConfigYShape1Display');
+        setMinMaxValue(0, 1080, 200, 'shapeConfigWidthShape1', 'shapeConfigWidthShape1Display');
+        setMinMaxValue(0, 1080, 200, 'shapeConfigHeightShape1', 'shapeConfigHeightShape1Display');
+        setMinMaxValue(1, 100, 100, 'shapeConfigOpacityShape1', 'shapeConfigOpacityShape1Display');
+        setMinMaxValue(0, 360, 0, 'shapeConfigAngleShape1', 'shapeConfigAngleShape1Display');
+        document.getElementById("shapeConfigXShape1").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigYShape1").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigWidthShape1").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigHeightShape1").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigOpacityShape1").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigAngleShape1").addEventListener("change", renderImages);
+
+        document.getElementById("shapeConfigShape1RenderIt").addEventListener("change", renderImages);
+        document.getElementById("shapeColourPickerShape1").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigXShape1Display").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigYShape1Display").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigWidthShape1Display").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigHeightShape1Display").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigOpacityShape1Display").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigAngleShape1Display").addEventListener("change", renderImages);
+        document.getElementById("shapeConfigXShape1Display").addEventListener("imput", renderImages);
+        document.getElementById("shapeConfigYShape1Display").addEventListener("imput", renderImages);
+        document.getElementById("shapeConfigWidthShape1Display").addEventListener("imput", renderImages);
+        document.getElementById("shapeConfigHeightShape1Display").addEventListener("imput", renderImages);
+        document.getElementById("shapeConfigOpacityShape1Display").addEventListener("imput", renderImages);
+        document.getElementById("shapeConfigAngleShape1Display").addEventListener("imput", renderImages);
+
+    }
+
+    function setDefaultSliderValues(){
+        setMinMaxValue(1, 200, 80, 'fontsize', 'fontsizedisplay');
+        setMinMaxValue(1, 50, 15, 'maxcharsperline', 'maxcharsperlinedisplay');
+        setMinMaxValue(-300, 300, 0, 'sloganyadjust', 'sloganyadjustdisplay');
+        setMinMaxValue(1, 200, 30, 'textlinespacing', 'textlinespacingdisplay');
+        setMinMaxValue(1, 400, 100, 'textborder', 'textborderdisplay');
+        setMinMaxValue(-400, 500, 30, 'footerborder', 'footerborderdisplay');
+        setMinMaxValue(0, 200, 6, 'texteffectsize', 'texteffectsizedisplay');
+    }
+
+    function createSliderNumberHook(sliderid, numberid){
+        document.getElementById(sliderid).addEventListener("change", function(){
+                setControlValueFromValue(sliderid, numberid);
+            }
+        );
+        document.getElementById(numberid).addEventListener("change", function(){
+                setControlValueFromValue(numberid, sliderid);
+            }
+        );
+        document.getElementById(numberid).addEventListener("input", function(){
+                setControlValueFromValue(numberid, sliderid);
+            }
+        );
+    }
+
+    function setControlValueFromValue(fromid, toid){
+        document.getElementById(toid).value = document.getElementById(fromid).value;
+    }
+
+    function setMinMaxValue(theMin, theMax, theValue){
+
+        for(var x=3; x<arguments.length; x++){
+            var element = document.getElementById(arguments[x]);
+            element.setAttribute('min', theMin);
+            element.setAttribute('max', theMax);
+            element.setAttribute('value', theValue);
+            // force display change
+            element.value = theValue;
+        }
+    }
+
+}
+
+
+function Renderer() {
+
+    var idForTextValue;
+
+    // supports hooking an event on to a field with a value, and a field with innerText modification
+    this.getTextFrom =function(anId){
+        idForTextValue = anId;
+        var elem = document.getElementById(anId);
+        if(elem.value==undefined){
+            // it doesn't seem to have a value so check for dom tree modifications and innerText
+            document.getElementById(anId).addEventListener("DOMSubtreeModified",
+                function(){
+                    textToRender =  document.getElementById(anId).innerText;
+                    renderImages();
+                }
+            );
+        }else {
+            // it has a value, use that
+            document.getElementById(anId).addEventListener("change",
+                function () {
+                    textToRender = document.getElementById(anId).value;
+                    renderImages();
+                }
+            );
+        }
+    }
+
+    var idForFooterTextValue;
+    this.getFooterTextFrom =function(anId){
+        idForFooterTextValue = anId;
+        var elem = document.getElementById(anId);
+        if(elem.value==undefined){
+            // it doesn't seem to have a value so check for dom tree modifications and innerText
+            document.getElementById(anId).addEventListener("DOMSubtreeModified",
+                function(){
+                    footerToRender =  document.getElementById(anId).innerText;
+                    renderImages();
+                }
+            );
+        }else {
+            // it has a value, use that
+            document.getElementById(anId).addEventListener("change",
+                function () {
+                    footerToRender = document.getElementById(anId).value;
+                    renderImages();
+                }
+            );
+        }
+    }
+
+    this.setFooterText = function(text){
+        footerToRender = text;
+    }
+
+    var backgroundImageFunctionality=false;
+    this.backgroundImageFunctionalityEnabled = function(aboolean){
+        backgroundImageFunctionality = aboolean;
+    }
+
+    this.setTextToRender = function(text){
+        textToRender = text;
+    }
+
+    this.setDefaultBackgroundColor = function(colour){
+        backColor = colour;
+        document.getElementById("backcolorpicker").value = colour;
+    }
+
+    this.renderNow = function(){
+        renderImages();
+    }
+
+
+    function setTextAlign(){
+        textAlign = "left";
+        if(document.getElementById("textaligncenter").checked){
+            textAlign="center";
+        }
+        if(document.getElementById("textalignright").checked){
+            textAlign="right";
+        }
+
+    }
+
+    this.displayIn = function(anId) {
+        new GuiConfigurator().displayIn(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality);
+    }
+
+
+    function changerendersize(width, height) {
+        var canvas = document.getElementById("renderslogan");
+        canvas.setAttribute("width", width + "px");
+        canvas.setAttribute("height", height + "px");
+
+        var imagePercentage = 0.04;
+        var img = document.getElementById("renderjpg");
+        img.setAttribute("width", width * imagePercentage);
+        img.setAttribute("height", height * imagePercentage);
+
+        renderImages();
+    }
+
+
 
     function wrapText(ctx, text, maxWidth, lineHeight) {
         var lines = [];
@@ -478,158 +797,18 @@ function Renderer() {
         return lines;
     }
 
-    function TextRenderer(){
-        var config;
 
-        this.setStyle = function(aStyleConfig){
-            config=aStyleConfig;
-            return this;
-        };
 
-        this.render = function(ctx, text, x, y){
 
-            if(config.getStyle()==1){
-                textEffectOutline(ctx, text, x, y,
-                    config.getFontColour(),
-                    config.getEffectColour(),
-                    config.getEffectWidth());
-                return;
-            }
+    // https://stackoverflow.com/questions/13627111/drawing-text-with-an-outer-stroke-with-html5s-canvas
 
-            if(config.getStyle()==2){
-                textEffectShadow(ctx, text, x, y,
-                    config.getFontColour(),
-                    config.getEffectColour(),
-                    config.getEffectWidth());
-                return;
-            }
-
-            if(config.getStyle()==3){
-                textEffectGlow(ctx, text, x, y,
-                    config.getFontColour(),
-                    config.getEffectColour(),
-                    config.getEffectWidth());
-                return;
-            }
-
-            // default normal
-            //if(style==0){
-            textEffectNormal(ctx, text, x, y,
-                config.getFontColour());
-            //}
-        };
-
-        function textEffectOutline(ctx, text, x, y, theTextColour, theOutlineColour='black', theOutlineWidth=4){
-            ctx.fillStyle = theTextColour;
-            ctx.save();
-            ctx.strokeStyle = theOutlineColour;
-            ctx.lineWidth = theOutlineWidth;
-            ctx.lineJoin="round";
-            ctx.miterLimit=2;
-            ctx.strokeText(text, x, y);
-            ctx.fillText(text, x, y);
-            ctx.restore();
-        }
-
-        function textEffectNormal(ctx, text, x, y, theTextColour){
-            ctx.fillStyle = theTextColour;
-            ctx.fillText(text, x, y);
-        }
-
-        function textEffectShadow(ctx, text, x, y, theTextColour, theShadowColour='black', theShadow = 4)
-        {
-            ctx.fillStyle = theTextColour;
-            ctx.save();
-            ctx.shadowBlur = 0;
-            ctx.shadowColor = theShadowColour;
-            ctx.shadowOffsetX = theShadow;
-            ctx.shadowOffsetY = theShadow;
-            ctx.fillText(text, x, y);
-            ctx.restore();
-        }
-
-        function textEffectGlow(ctx, text, x, y, theTextColour, theGlowColour='red', theGlowSize = 10)
-        {
-            ctx.fillStyle = theTextColour;
-            ctx.save();
-            ctx.shadowBlur = theGlowSize;
-            ctx.shadowColor = theGlowColour;
-            ctx.strokeText(text, x, y);
-
-            for(let i = 0; i < 3; i++) {
-                ctx.fillText(text, x, y);
-            }
-            ctx.restore();
-        }
+    function textEffectNormal(ctx, text, x, y, theTextColour){
+        var textRenderer = new TextRenderer().setStyle(
+            new TextRenderStyleConfig().
+            setStyle(0).
+            setFontColour(theTextColour));
+        textRenderer.render(ctx, text, x, y);
     }
-
-    function TextRenderStyleConfig(){
-
-        var style=0; // 0 - normal, 1 - outline
-        var textColour="black";
-        var effectColour="white";
-        var effectWidth=4;
-
-        this.setStyle = function(styleId){
-            // 0 - normal
-            // 1 - outline
-            // 2 - shadow
-            // 3 - glow
-
-            if(isNaN(Number(styleId))){
-                style=0;
-            }else{
-                style=Number(styleId);
-            }
-            if(style>3){
-                style=3;
-            }
-            return this;
-        };
-
-        this.getStyle = function(){
-            return style;
-        };
-
-        this.setFontColour = function(aColour){
-            textColour = aColour;
-            return this;
-        };
-
-        this.getFontColour = function(){
-            return textColour;
-        };
-
-        this.setEffectColour = function(aColour){
-            effectColour = aColour;
-            return this;
-        };
-
-        this.getEffectColour = function(){
-            return effectColour;
-        };
-
-        this.setEffectWidth = function(aNumber){
-            effectWidth = aNumber;
-            return this;
-        };
-
-        this.getEffectWidth = function(){
-            return effectWidth;
-        };
-    }
-
-
-
-    https://stackoverflow.com/questions/13627111/drawing-text-with-an-outer-stroke-with-html5s-canvas
-
-        function textEffectNormal(ctx, text, x, y, theTextColour){
-            var textRenderer = new TextRenderer().setStyle(
-                new TextRenderStyleConfig().
-                setStyle(0).
-                setFontColour(theTextColour));
-            textRenderer.render(ctx, text, x, y);
-        }
 
     function textEffectOutline(ctx, text, x, y, theTextColour, theEffectColour, theEffectWidth){
         var textRenderer = new TextRenderer().setStyle(
@@ -771,23 +950,17 @@ function Renderer() {
 
         }else{
             renderBackgroundColour(ctx);
+
+            if(backgroundShape){
+                backgroundShape.drawShape(ctx);
+            }
+
             renderSlogan(ctx, text);
         }
     }
 
 
-    function hexToRgb(hex, alpha) {
-        hex   = hex.replace('#', '');
-        var r = parseInt(hex.length == 3 ? hex.slice(0, 1).repeat(2) : hex.slice(0, 2), 16);
-        var g = parseInt(hex.length == 3 ? hex.slice(1, 2).repeat(2) : hex.slice(2, 4), 16);
-        var b = parseInt(hex.length == 3 ? hex.slice(2, 3).repeat(2) : hex.slice(4, 6), 16);
-        if ( alpha ) {
-            return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
-        }
-        else {
-            return 'rgb(' + r + ', ' + g + ', ' + b + ')';
-        }
-    }
+
 
     function renderBackgroundColour(ctx, overridecolor){
 
@@ -797,7 +970,7 @@ function Renderer() {
         }else {
             // opacity test
             if(backgroundImageFunctionality) {
-                ctx.fillStyle = hexToRgb(backColor, backgroundOpacity);
+                ctx.fillStyle = new ColourConvertor().hexToRgb(backColor, backgroundOpacity);
             }else {
                 ctx.fillStyle = backColor;
             }
@@ -806,19 +979,7 @@ function Renderer() {
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     }
 
-    function DrawLine(){
 
-        this.x;
-        this.y;
-        this.text;
-
-        this.set = function(anX, aY, theText){
-            this.x = anX;
-            this.y = aY;
-            this.text = theText;
-            return this;
-        };
-    }
 
     function renderSlogan(ctx, text){
         // max width for the rendering
@@ -952,6 +1113,7 @@ function Renderer() {
     var footerToRender = "";
 
     var textAlign = "left";
+    var backgroundShape = undefined;
 
     // // TODO: allow footer text size and font to be different from the main text
     //
@@ -1016,7 +1178,18 @@ function Renderer() {
             document.getElementById('applyeffecttofooter').checked,
             document.getElementById('effectColourPicker').value,
             document.getElementById('texteffectsize').value
-        )
+        );
+        // TODO: rework this, created new extract because it was getting too big
+        setBackGroundShapeGlobals(
+            document.getElementById("shapeConfigShape1RenderIt").checked,
+            document.getElementById("shapeColourPickerShape1").value,
+                document.getElementById("shapeConfigXShape1").value,
+                document.getElementById("shapeConfigYShape1").value,
+                document.getElementById("shapeConfigWidthShape1").value,
+                document.getElementById("shapeConfigHeightShape1").value,
+                document.getElementById("shapeConfigOpacityShape1").value,
+                document.getElementById("shapeConfigAngleShape1").value
+        );
     }
 
     function setGlobals(useBackColor, useTextColor, font, useFontSize, useAutoSizeFont, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder,
@@ -1050,6 +1223,22 @@ function Renderer() {
         }
     }
 
+    function setBackGroundShapeGlobals(showShape, useColour, useX, useY, useWidth, useHeight, useOpacity, useAngle){
+        if(!showShape){
+            backgroundShape=undefined;
+            return;
+        }
+
+        backgroundShape = new ShapeDraw().
+                            defineRect(
+                                parseInt(useX),
+                                parseInt(useY),
+                                parseInt(useWidth),
+                                parseInt(useHeight),
+                                parseInt(useAngle),
+                                useColour,
+                                parseInt(useOpacity)/100);
+    }
 
     function renderTextAndFooter() {
         var canvas = document.getElementById('renderslogan');
@@ -1087,14 +1276,17 @@ function Renderer() {
 
 
 
-// TODO: allow a background image and an opacity for the background colour - need to catch error and make readable error for tainted image and this code needs to be programmatically activated as an advanced mode (tried copying into intermediate canvas but that didn't work) - workaround add links to png to jpg online conversion services
-// TODO: when image and opacity is available allow 'margin' for the background colour to adjust amount of background image shown
-// TODO: can we pull in list of font names supported by browser rather than hard code?
-// TODO: make javascript control html template more configurable and code generated
-// TODO: add a background shape e.g square, circle, rectangle - config colour, x, y, width, height and rotation
-// TODO: add linear gradiant background, background shape
-// TODO: add radial gradiant background, background shape
 
 
 
 }
+
+
+// TODO: allow a background image and an opacity for the background colour - need to catch error and make readable error for tainted image and this code needs to be programmatically activated as an advanced mode (tried copying into intermediate canvas but that didn't work) - workaround add links to png to jpg online conversion services
+// TODO: when image and opacity is available allow 'margin' for the background colour to adjust amount of background image shown
+// TODO: can we pull in list of font names supported by browser rather than hard code?
+// TODO: make javascript control html template more configurable and code generated
+// TODO: add a background circle
+// TODO: add linear gradiant background, background shape
+// TODO: add radial gradiant background, background shape
+

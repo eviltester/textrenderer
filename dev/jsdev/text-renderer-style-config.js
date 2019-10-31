@@ -53,3 +53,4 @@ function TextRenderStyleConfig(){
         return effectWidth;
     };
 }
+
