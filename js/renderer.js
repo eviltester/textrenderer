@@ -602,7 +602,7 @@ function GuiConfigurator(){
         setMinMaxValue(0, 1080, 200, 'shapeConfigWidthShape1', 'shapeConfigWidthShape1Display');
         setMinMaxValue(0, 1080, 200, 'shapeConfigHeightShape1', 'shapeConfigHeightShape1Display');
         setMinMaxValue(1, 100, 100, 'shapeConfigOpacityShape1', 'shapeConfigOpacityShape1Display');
-        setMinMaxValue(0, 360, 0, 'shapeConfigAngleShape1', 'shapeConfigAngleShape1Display');
+        setMinMaxValue(0, 180, 0, 'shapeConfigAngleShape1', 'shapeConfigAngleShape1Display');
         document.getElementById("shapeConfigXShape1").addEventListener("change", renderImages);
         document.getElementById("shapeConfigYShape1").addEventListener("change", renderImages);
         document.getElementById("shapeConfigWidthShape1").addEventListener("change", renderImages);
