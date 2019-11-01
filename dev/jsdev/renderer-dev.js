@@ -74,8 +74,14 @@ function Renderer() {
 
     function setTextAlign(){
         textAlign = "left";
+        if(document.getElementById("textaligncenterleft").checked){
+            textAlign="centerleft";
+        }
         if(document.getElementById("textaligncenter").checked){
             textAlign="center";
+        }
+        if(document.getElementById("textaligncenterright").checked){
+            textAlign="centerright";
         }
         if(document.getElementById("textalignright").checked){
             textAlign="right";
@@ -84,7 +90,7 @@ function Renderer() {
     }
 
     this.displayIn = function(anId) {
-        new GuiConfigurator().displayIn(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality);
+        new GuiConfigurator().displayIn(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality, setTextAlign);
     }
 
 
@@ -372,18 +378,29 @@ function Renderer() {
         liney=y;
         for (var n = 0; n < lines.length; n++) {
             switch(textAlign) {
+                case "centerleft":
+                    // centered on longest line and shorter lines are on the left of this
+                    drawLines.push(new DrawLine().set(x, liney, lines[n]));
+                    break;
                 case "center":
+                    // all lines individually centered
                     x = (ctx.canvas.width / 2) - (ctx.measureText(lines[n]).width / 2);
                     drawLines.push(new DrawLine().set(x, liney, lines[n]));
                     break;
+                case "centerright":
+                    // centered on longest line and shorter lines are on the right of this
+                    myx = x + (longestLength - ctx.measureText(lines[n]).width);
+                    drawLines.push(new DrawLine().set(myx, liney, lines[n]));
+                    break;
                 case "right":
-                    // right align
-                    x = border + longestLength - ctx.measureText(lines[n]).width;
+                    // right align with border
+                    x = border + maxWidth - ctx.measureText(lines[n]).width;
                     drawLines.push(new DrawLine().set(x, liney, lines[n]));
                     break;
+                case "left":
                 default:
-                    // left align
-                    drawLines.push(new DrawLine().set(x, liney, lines[n]));
+                    // left align with border
+                    drawLines.push(new DrawLine().set(border, liney, lines[n]));
             }
             liney += lineHeight;
         }
@@ -440,7 +457,7 @@ function Renderer() {
     var textToRender = "";
     var footerToRender = "";
 
-    var textAlign = "left";
+    var textAlign = "centerleft";
     var backgroundShape = undefined;
 
     // // TODO: allow footer text size and font to be different from the main text

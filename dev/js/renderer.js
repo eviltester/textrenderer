@@ -89,8 +89,10 @@ function GuiHtml(){
         
                         <div class="textalignconfig">
                             <div class="textaligncenterconfig">
-                                  <input id="textalignleft" type="radio" name="textalign" value="left" checked>Left 
-                                  <input id="textaligncenter" type="radio" name="textalign" value="center">Center 
+                                  <input id="textalignleft" type="radio" name="textalign" value="left">Left
+                                  <input id="textaligncenterleft" type="radio" name="textalign" value="centerleft" checked>Center Left
+                                  <input id="textaligncenter" type="radio" name="textalign" value="center">Center
+                                  <input id="textaligncenterright" type="radio" name="textalign" value="centerright">Center Right
                                   <input id="textalignright" type="radio" name="textalign" value="right">Right
                             </div>
                         </div>
@@ -483,7 +485,7 @@ function GuiConfigurator(){
         });
     }
 
-    this.displayIn = function(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality) {
+    this.displayIn = function(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality, setTextAlign) {
         if (!document.getElementById("rendering")) {
             document.getElementById(anId).insertAdjacentHTML(
                 'beforeend', new GuiHtml().html());
@@ -506,18 +508,13 @@ function GuiConfigurator(){
         document.getElementById("textfontselector").addEventListener("change", renderImages);
         document.getElementById("autofontsize").addEventListener("change", renderImages);
 
-        document.getElementById("textaligncenter").addEventListener("change", function(){
-            setTextAlign();
-            renderImages()
-        });
-        document.getElementById("textalignleft").addEventListener("change", function(){
-            setTextAlign();
-            renderImages()
-        });
-        document.getElementById("textalignright").addEventListener("change", function(){
-            setTextAlign();
-            renderImages()
-        });
+        var elems = document.querySelectorAll(".textaligncenterconfig input")
+        for(elemindex=0; elemindex<elems.length; elemindex++){
+            elems[elemindex].addEventListener("change", function(){
+                setTextAlign();
+                renderImages()
+            });
+        }
 
         document.getElementById("fontsize").addEventListener("change", renderImages);
         document.getElementById("maxcharsperline").addEventListener("change", renderImages);
@@ -746,8 +743,14 @@ function Renderer() {
 
     function setTextAlign(){
         textAlign = "left";
+        if(document.getElementById("textaligncenterleft").checked){
+            textAlign="centerleft";
+        }
         if(document.getElementById("textaligncenter").checked){
             textAlign="center";
+        }
+        if(document.getElementById("textaligncenterright").checked){
+            textAlign="centerright";
         }
         if(document.getElementById("textalignright").checked){
             textAlign="right";
@@ -756,7 +759,7 @@ function Renderer() {
     }
 
     this.displayIn = function(anId) {
-        new GuiConfigurator().displayIn(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality);
+        new GuiConfigurator().displayIn(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality, setTextAlign);
     }
 
 
@@ -1044,18 +1047,29 @@ function Renderer() {
         liney=y;
         for (var n = 0; n < lines.length; n++) {
             switch(textAlign) {
+                case "centerleft":
+                    // centered on longest line and shorter lines are on the left of this
+                    drawLines.push(new DrawLine().set(x, liney, lines[n]));
+                    break;
                 case "center":
+                    // all lines individually centered
                     x = (ctx.canvas.width / 2) - (ctx.measureText(lines[n]).width / 2);
                     drawLines.push(new DrawLine().set(x, liney, lines[n]));
                     break;
+                case "centerright":
+                    // centered on longest line and shorter lines are on the right of this
+                    myx = x + (longestLength - ctx.measureText(lines[n]).width);
+                    drawLines.push(new DrawLine().set(myx, liney, lines[n]));
+                    break;
                 case "right":
-                    // right align
-                    x = border + longestLength - ctx.measureText(lines[n]).width;
+                    // right align with border
+                    x = border + maxWidth - ctx.measureText(lines[n]).width;
                     drawLines.push(new DrawLine().set(x, liney, lines[n]));
                     break;
+                case "left":
                 default:
-                    // left align
-                    drawLines.push(new DrawLine().set(x, liney, lines[n]));
+                    // left align with border
+                    drawLines.push(new DrawLine().set(border, liney, lines[n]));
             }
             liney += lineHeight;
         }
@@ -1112,7 +1126,7 @@ function Renderer() {
     var textToRender = "";
     var footerToRender = "";
 
-    var textAlign = "left";
+    var textAlign = "centerleft";
     var backgroundShape = undefined;
 
     // // TODO: allow footer text size and font to be different from the main text

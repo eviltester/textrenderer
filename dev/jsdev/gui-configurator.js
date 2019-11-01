@@ -24,7 +24,7 @@ function GuiConfigurator(){
         });
     }
 
-    this.displayIn = function(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality) {
+    this.displayIn = function(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality, setTextAlign) {
         if (!document.getElementById("rendering")) {
             document.getElementById(anId).insertAdjacentHTML(
                 'beforeend', new GuiHtml().html());
@@ -47,18 +47,13 @@ function GuiConfigurator(){
         document.getElementById("textfontselector").addEventListener("change", renderImages);
         document.getElementById("autofontsize").addEventListener("change", renderImages);
 
-        document.getElementById("textaligncenter").addEventListener("change", function(){
-            setTextAlign();
-            renderImages()
-        });
-        document.getElementById("textalignleft").addEventListener("change", function(){
-            setTextAlign();
-            renderImages()
-        });
-        document.getElementById("textalignright").addEventListener("change", function(){
-            setTextAlign();
-            renderImages()
-        });
+        var elems = document.querySelectorAll(".textaligncenterconfig input")
+        for(elemindex=0; elemindex<elems.length; elemindex++){
+            elems[elemindex].addEventListener("change", function(){
+                setTextAlign();
+                renderImages()
+            });
+        }
 
         document.getElementById("fontsize").addEventListener("change", renderImages);
         document.getElementById("maxcharsperline").addEventListener("change", renderImages);
