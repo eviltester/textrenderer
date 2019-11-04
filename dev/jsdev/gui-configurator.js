@@ -35,6 +35,7 @@ function GuiConfigurator(){
         showHideButtonConfigure("#show-hide-colourpickers", ".colourpickers", true);
         showHideButtonConfigure("#show-hide-texteffects", ".textEffects", false);
         showHideButtonConfigure("#show-hide-jpgpreview", ".jpgimagepreview", false);
+        showHideButtonConfigure("#show-hide-background-image-config", ".backgroundimageconfigform", false);
 
 
         document.getElementById("renderfromguibutton").addEventListener("click", renderAppText);

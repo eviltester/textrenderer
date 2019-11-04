@@ -6,4 +6,4 @@
 // TODO: add a background circle
 // TODO: add linear gradiant background, background shape
 // TODO: add radial gradiant background, background shape
-
+// TODO: prototype dragging slogan, background shape, footer, background image

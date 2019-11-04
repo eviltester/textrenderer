@@ -212,14 +212,18 @@ function GuiHtml(){
                 
                 <!-- prototype as not always going to work so don't want to confuse users -->
                 <div class="backgroundimageconfig" style="display:none">
-                    <div class="backgroundimageurlinput">
-                        <label for="backgroundimageurlinput">Background Image Url</label>
-                        <input type="text" id="backgroundimageurlinput">
+                    <div><button id="show-hide-background-image-config" class="showhidebutton" value="Background Image Config"></button></div>
+
+                    <div class="backgroundimageconfigform">
+                        <div class="backgroundimageurlinput">
+                            <label for="backgroundimageurlinput">Background Image Url</label>
+                            <input type="text" id="backgroundimageurlinput">
+                        </div>
+                        <div class="backgroundcolouropacity">
+                            <label for="backgroundcolouropacity">Background Colour Opacity 0 - 1</label>
+                            <input type="text" id="backgroundcolouropacity">
+                        </div>
                     </div>
-                    <div class="backgroundcolouropacity">
-                        <label for="backgroundcolouropacity">Background Colour Opacity 0 - 1</label>
-                        <input type="text" id="backgroundcolouropacity">
-                    </div>                    
                 </div>
                 
                 <div><button id="show-hide-jpgpreview" class="showhidebutton" value=".JPG Saving"></button></div>
@@ -254,7 +258,65 @@ function DrawLine(){
     };
 }
 
-function ColourConvertor(){
+function BackgroundImage(){
+
+    this.enabled = false;
+    this.url = "";
+
+    this.setImageUrl = function(aUrl){
+        this.url = aUrl;
+        this.enabled = true;
+        return aUrl;
+    }
+
+    this.renderImageIn = function(ctx, afterRendering, onFailToLoad){
+
+        if(!this.url || this.url.length==0){console.log("No URL set"); onFailToLoad()}
+
+        var background = new Image();
+        background.crossOrigin = "Anonymous";   // requires header from server Access-Control-Allow-Origin "*"
+
+        background.onload = function(){
+
+            // actual size
+            // ctx.drawImage(background,0,0);
+
+            // scaled to canvas
+            // could be done using scaling code scale ratio of 100, 100 and y offset, x offset of 0
+            ctx.drawImage(background,0,0, background.width, background.height, 0,0, ctx.canvas.width, ctx.canvas.height);
+
+            // scale image
+            var initialxratio = 75;
+            var initialyratio = 75;
+            var xratio = initialxratio / 100;
+            var yratio = initialyratio / 100;
+
+            var imagexOffset=0;
+            var imageyOffset=0;
+
+            // center image
+            imagexOffset = (ctx.canvas.width - (ctx.canvas.width*xratio))/2;
+            imageyOffset = (ctx.canvas.height - (ctx.canvas.height*yratio))/2;
+
+
+            // centered with custom scale
+            //ctx.drawImage(background,0,0, background.width, background.height, 0+imagexOffset,0+imageyOffset, ctx.canvas.width*xratio, ctx.canvas.height*yratio);
+
+            afterRendering();
+        }
+
+        background.onerror = function(){
+            // TODO: create a GUI control for error reporting
+            console.log("could not load image, rendering with background instead");
+            onFailToLoad();
+        }
+
+        background.src = this.url;
+
+    }
+
+
+}function ColourConvertor(){
 
     this.hexToRgb = function (hex, alpha) {
         hex   = hex.replace('#', '');
@@ -496,6 +558,7 @@ function GuiConfigurator(){
         showHideButtonConfigure("#show-hide-colourpickers", ".colourpickers", true);
         showHideButtonConfigure("#show-hide-texteffects", ".textEffects", false);
         showHideButtonConfigure("#show-hide-jpgpreview", ".jpgimagepreview", false);
+        showHideButtonConfigure("#show-hide-background-image-config", ".backgroundimageconfigform", false);
 
 
         document.getElementById("renderfromguibutton").addEventListener("click", renderAppText);
@@ -722,9 +785,14 @@ function Renderer() {
         footerToRender = text;
     }
 
-    var backgroundImageFunctionality=false;
+    var backgroundImageFunctionality=undefined;
     this.backgroundImageFunctionalityEnabled = function(aboolean){
-        backgroundImageFunctionality = aboolean;
+        if(aboolean){
+            backgroundImageFunctionality = new BackgroundImage();
+            backgroundImageFunctionality.enabled = true;
+        }else{
+            backgroundImageFunctionality = undefined;
+        }
     }
 
     this.setTextToRender = function(text){
@@ -898,6 +966,7 @@ function Renderer() {
     // may not be able to use background image for jpeg due to tainted image
     var backgroundimage;
 
+    // TODO: too much repeated code here
     function renderText(ctx, text) {
 
 
@@ -907,49 +976,24 @@ function Renderer() {
         // add a non-transparent white background by default for jpeg mainly
         renderBackgroundColour(ctx, "#FFFFFF");
 
-        if(backgroundimage && backgroundimage.length!=0){
-            var background = new Image();
-            background.crossOrigin = "Anonymous";   // requires header from server Access-Control-Allow-Origin "*"
+        if(backgroundImageFunctionality && backgroundImageFunctionality.enabled){
 
-            background.onload = function(){
-
-                // actual size
-                // ctx.drawImage(background,0,0);
-
-                // scaled to canvas
-                // could be done using scaling code scale ratio of 100, 100 and y offset, x offset of 0
-                ctx.drawImage(background,0,0, background.width, background.height, 0,0, ctx.canvas.width, ctx.canvas.height);
-
-                // scale image
-                var initialxratio = 75;
-                var initialyratio = 75;
-                var xratio = initialxratio / 100;
-                var yratio = initialyratio / 100;
-
-                var imagexOffset=0;
-                var imageyOffset=0;
-
-                // center image
-                imagexOffset = (ctx.canvas.width - (ctx.canvas.width*xratio))/2;
-                imageyOffset = (ctx.canvas.height - (ctx.canvas.height*yratio))/2;
-
-
-                // centered with custom scale
-                //ctx.drawImage(background,0,0, background.width, background.height, 0+imagexOffset,0+imageyOffset, ctx.canvas.width*xratio, ctx.canvas.height*yratio);
-
-                renderBackgroundColour(ctx);
-
-                renderSlogan(ctx, text);
-            }
-
-            background.onerror = function(){
-                // TODO: create a GUI control for error reporting
-                console.log("could not load image, rendering with background instead");
-                renderBackgroundColour(ctx);
-                renderSlogan(ctx, text);
-            }
-
-            background.src = backgroundimage;
+            backgroundImageFunctionality.renderImageIn(ctx,
+                function(){
+                    renderBackgroundColour(ctx);
+                    if(backgroundShape){
+                        backgroundShape.drawShape(ctx);
+                    }
+                    renderSlogan(ctx, text);
+                },
+                function(){
+                    renderBackgroundColour(ctx);
+                    if(backgroundShape){
+                        backgroundShape.drawShape(ctx);
+                    }
+                    renderSlogan(ctx, text);
+                }
+            );
 
         }else{
             renderBackgroundColour(ctx);
@@ -963,8 +1007,6 @@ function Renderer() {
     }
 
 
-
-
     function renderBackgroundColour(ctx, overridecolor){
 
 
@@ -972,7 +1014,7 @@ function Renderer() {
             ctx.fillStyle = overridecolor;
         }else {
             // opacity test
-            if(backgroundImageFunctionality) {
+            if(backgroundImageFunctionality && backgroundImageFunctionality.enabled) {
                 ctx.fillStyle = new ColourConvertor().hexToRgb(backColor, backgroundOpacity);
             }else {
                 ctx.fillStyle = backColor;
@@ -1228,8 +1270,8 @@ function Renderer() {
         effectColour = useEffectColour;
         effectWidth = parseInt(useEffectSize);
 
-        if(backgroundImageFunctionality){
-            backgroundimage = useImageUrl;
+        if(backgroundImageFunctionality && backgroundImageFunctionality.enabled){
+            backgroundimage = backgroundImageFunctionality.setImageUrl(useImageUrl);
             backgroundOpacity = parseFloat(useOpacity);
         }else{
             backgroundimage = undefined;
@@ -1303,4 +1345,4 @@ function Renderer() {
 // TODO: add a background circle
 // TODO: add linear gradiant background, background shape
 // TODO: add radial gradiant background, background shape
-
+// TODO: prototype dragging slogan, background shape, footer, background image
