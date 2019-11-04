@@ -253,6 +253,7 @@ function Renderer() {
                         backgroundShape.drawShape(ctx);
                     }
                     renderSlogan(ctx, text);
+                    renderFooter(ctx, footerToRender)
                 },
                 function(){
                     renderBackgroundColour(ctx);
@@ -260,6 +261,7 @@ function Renderer() {
                         backgroundShape.drawShape(ctx);
                     }
                     renderSlogan(ctx, text);
+                    renderFooter(ctx, footerToRender)
                 }
             );
 
@@ -391,7 +393,12 @@ function Renderer() {
         //renderLines(ctx, lines, x, y, lineHeight);
     }
 
+
+    var footerRenderingOn=true;
+
     function renderFooter(ctx, text) {
+
+        if(!footerRenderingOn){return;}
 
         footerx = ctx.canvas.width - ctx.measureText(text).width;
         footerx = footerx / 2;
@@ -501,7 +508,9 @@ function Renderer() {
             document.getElementById('texteffectstyleselector').value,
             document.getElementById('applyeffecttofooter').checked,
             document.getElementById('effectColourPicker').value,
-            document.getElementById('texteffectsize').value
+            document.getElementById('texteffectsize').value,
+            document.getElementById('displayFooter').checked
+
         );
         // TODO: rework this, created new extract because it was getting too big
         setBackGroundShapeGlobals(
@@ -519,7 +528,8 @@ function Renderer() {
     function setGlobals(useBackColor, useTextColor, font, useFontSize, useAutoSizeFont, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder,
                         usesloganyadjust,
                         useImageUrl, useOpacity,
-                        useTextEffectStyle, applyThisEffectToFooter, useEffectColour, useEffectSize
+                        useTextEffectStyle, applyThisEffectToFooter, useEffectColour, useEffectSize,
+                        useDisplayFooter
     ) {
 
         backColor = useBackColor;
@@ -545,6 +555,8 @@ function Renderer() {
             backgroundimage = undefined;
             backgroundOpacity = 1;
         }
+
+        footerRenderingOn = useDisplayFooter;
     }
 
     function setBackGroundShapeGlobals(showShape, useColour, useX, useY, useWidth, useHeight, useOpacity, useAngle){

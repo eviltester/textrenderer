@@ -60,7 +60,10 @@ function GuiConfigurator(){
         document.getElementById("maxcharsperline").addEventListener("change", renderImages);
         document.getElementById("textlinespacing").addEventListener("change", renderImages);
         document.getElementById("textborder").addEventListener("change", renderImages);
-        document.getElementById("footerborder").addEventListener("change", renderImages);
+
+        document.getElementById("autofontsize").addEventListener("change", renderImages);
+        document.getElementById("displayFooter").addEventListener("change", renderImages);
+
         document.getElementById("backcolorpicker").addEventListener("change", renderImages);
         document.getElementById("textcolorpicker").addEventListener("change", renderImages);
         document.getElementById("sloganyadjust").addEventListener("change", renderImages);

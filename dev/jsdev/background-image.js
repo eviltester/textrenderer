@@ -51,7 +51,9 @@ function BackgroundImage(){
             onFailToLoad();
         }
 
-        background.src = this.url;
+        if(this.url.length>0) {
+            background.src = this.url;
+        }
 
     }
 

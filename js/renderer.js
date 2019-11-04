@@ -122,8 +122,13 @@ function GuiHtml(){
                 <div><button id="show-hide-footer-config" class="showhidebutton" value="Footer Config">Show Footer Config</button></div>
                 
                 <div class="textfooterconfig">
-                    <label for="footerborder">Footer Vertical Adjust <input type="number"  id="footerborderdisplay"/></label>
-                    <input type="range" class="slider" id="footerborder">
+                    <div class="displayFooterConfig">
+                        <input type="checkbox" id="displayFooter" checked>Display Footer
+                    </div>
+                    <div class="footerVerticalAdjustConfig">
+                        <label for="footerborder">Footer Vertical Adjust <input type="number"  id="footerborderdisplay"/></label>
+                        <input type="range" class="slider" id="footerborder">
+                    </div>
                 </div>
                 
                 <div><button id="show-hide-colourpickers" class="showhidebutton" value="Colour Pickers">Show Colour Pickers</button></div>
@@ -311,7 +316,9 @@ function BackgroundImage(){
             onFailToLoad();
         }
 
-        background.src = this.url;
+        if(this.url.length>0) {
+            background.src = this.url;
+        }
 
     }
 
@@ -583,7 +590,10 @@ function GuiConfigurator(){
         document.getElementById("maxcharsperline").addEventListener("change", renderImages);
         document.getElementById("textlinespacing").addEventListener("change", renderImages);
         document.getElementById("textborder").addEventListener("change", renderImages);
-        document.getElementById("footerborder").addEventListener("change", renderImages);
+
+        document.getElementById("autofontsize").addEventListener("change", renderImages);
+        document.getElementById("displayFooter").addEventListener("change", renderImages);
+
         document.getElementById("backcolorpicker").addEventListener("change", renderImages);
         document.getElementById("textcolorpicker").addEventListener("change", renderImages);
         document.getElementById("sloganyadjust").addEventListener("change", renderImages);
@@ -985,6 +995,7 @@ function Renderer() {
                         backgroundShape.drawShape(ctx);
                     }
                     renderSlogan(ctx, text);
+                    renderFooter(ctx, footerToRender)
                 },
                 function(){
                     renderBackgroundColour(ctx);
@@ -992,6 +1003,7 @@ function Renderer() {
                         backgroundShape.drawShape(ctx);
                     }
                     renderSlogan(ctx, text);
+                    renderFooter(ctx, footerToRender)
                 }
             );
 
@@ -1123,7 +1135,12 @@ function Renderer() {
         //renderLines(ctx, lines, x, y, lineHeight);
     }
 
+
+    var footerRenderingOn=true;
+
     function renderFooter(ctx, text) {
+
+        if(!footerRenderingOn){return;}
 
         footerx = ctx.canvas.width - ctx.measureText(text).width;
         footerx = footerx / 2;
@@ -1233,7 +1250,9 @@ function Renderer() {
             document.getElementById('texteffectstyleselector').value,
             document.getElementById('applyeffecttofooter').checked,
             document.getElementById('effectColourPicker').value,
-            document.getElementById('texteffectsize').value
+            document.getElementById('texteffectsize').value,
+            document.getElementById('displayFooter').checked
+
         );
         // TODO: rework this, created new extract because it was getting too big
         setBackGroundShapeGlobals(
@@ -1251,7 +1270,8 @@ function Renderer() {
     function setGlobals(useBackColor, useTextColor, font, useFontSize, useAutoSizeFont, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder,
                         usesloganyadjust,
                         useImageUrl, useOpacity,
-                        useTextEffectStyle, applyThisEffectToFooter, useEffectColour, useEffectSize
+                        useTextEffectStyle, applyThisEffectToFooter, useEffectColour, useEffectSize,
+                        useDisplayFooter
     ) {
 
         backColor = useBackColor;
@@ -1277,6 +1297,8 @@ function Renderer() {
             backgroundimage = undefined;
             backgroundOpacity = 1;
         }
+
+        footerRenderingOn = useDisplayFooter;
     }
 
     function setBackGroundShapeGlobals(showShape, useColour, useX, useY, useWidth, useHeight, useOpacity, useAngle){
