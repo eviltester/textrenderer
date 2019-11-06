@@ -153,7 +153,7 @@ function TextFormatter(){
                     break;
                 case "right":
                     // right align with border
-                    x = xoffset + maxWidth - this.ctx.measureText(lines[n]).width;
+                    x = xoffset + this.maxWidth - this.ctx.measureText(lines[n]).width;
                     drawLines.push(new DrawLine().set(x, liney, lines[n]));
                     break;
                 case "left":

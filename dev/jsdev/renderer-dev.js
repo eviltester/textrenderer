@@ -78,20 +78,14 @@ function Renderer() {
 
 
     function setTextAlign(){
-        textAlign = "left";
-        if(document.getElementById("textaligncenterleft").checked){
-            textAlign="centerleft";
+        textAlign = "centerleft";
+        var elems = document.querySelectorAll(".textaligncenterconfig input[type='radio']");
+        for(var elemindex=0; elemindex<elems.length; elemindex++){
+            if(elems[elemindex].checked){
+                textAlign = elems[elemindex].getAttribute("value");
+                return;
+            }
         }
-        if(document.getElementById("textaligncenter").checked){
-            textAlign="center";
-        }
-        if(document.getElementById("textaligncenterright").checked){
-            textAlign="centerright";
-        }
-        if(document.getElementById("textalignright").checked){
-            textAlign="right";
-        }
-
     }
 
     this.displayIn = function(anId) {

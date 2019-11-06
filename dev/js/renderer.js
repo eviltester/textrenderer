@@ -1,7 +1,7 @@
 /*
     Informal version tracking
 
-    20191106 - split out text formatting, wrap code to a class to start allowing footer different size
+    20191106 - split out text formatting, wrap code to a class, allows autosize of footer to have different size if too large, fixed bug where footer vertical adjust slider did not adjust y value
     20191031 - split into multiple files to make js easier to edit, side-effect html validation easier added background shape
     20191029 - all html code events added by js, and config controlled by js min, max, value, defaults, changed label to number and  hooked slider to number, text alignment
     20191026 - added basic font effect control - normal, outline, shadow, glow
@@ -419,7 +419,7 @@ function TextFormatter(){
                     break;
                 case "right":
                     // right align with border
-                    x = xoffset + maxWidth - this.ctx.measureText(lines[n]).width;
+                    x = xoffset + this.maxWidth - this.ctx.measureText(lines[n]).width;
                     drawLines.push(new DrawLine().set(x, liney, lines[n]));
                     break;
                 case "left":
@@ -991,20 +991,14 @@ function Renderer() {
 
 
     function setTextAlign(){
-        textAlign = "left";
-        if(document.getElementById("textaligncenterleft").checked){
-            textAlign="centerleft";
+        textAlign = "centerleft";
+        var elems = document.querySelectorAll(".textaligncenterconfig input[type='radio']");
+        for(var elemindex=0; elemindex<elems.length; elemindex++){
+            if(elems[elemindex].checked){
+                textAlign = elems[elemindex].getAttribute("value");
+                return;
+            }
         }
-        if(document.getElementById("textaligncenter").checked){
-            textAlign="center";
-        }
-        if(document.getElementById("textaligncenterright").checked){
-            textAlign="centerright";
-        }
-        if(document.getElementById("textalignright").checked){
-            textAlign="right";
-        }
-
     }
 
     this.displayIn = function(anId) {
@@ -1458,3 +1452,6 @@ function Renderer() {
 // TODO: add linear gradiant background, background shape
 // TODO: add radial gradiant background, background shape
 // TODO: prototype dragging slogan, background shape, footer, background image
+// TODO: create separate Auto Size radio set for footer - [] Auto Size [] Use Slogan Size   (then add [] Custom Size)
+// TODO: option to wrap footer text with max line etc. as per slogan
+// TODO: add drop down of images if configured by page
