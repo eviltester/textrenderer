@@ -72,6 +72,7 @@ function GuiConfigurator(){
         document.getElementById("applyeffecttofooter").addEventListener("change", renderImages);
         document.getElementById("effectColourPicker").addEventListener("change", renderImages);
         document.getElementById("texteffectsize").addEventListener("change", renderImages);
+        document.getElementById("footerborder").addEventListener("change", renderImages);
 
         if(backgroundImageFunctionality){
             document.querySelector(".backgroundimageconfig").style.display = "block"; // show controls

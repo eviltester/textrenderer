@@ -1,6 +1,7 @@
 /*
     Informal version tracking
 
+    20191106 - split out text formatting, wrap code to a class to start allowing footer different size
     20191031 - split into multiple files to make js easier to edit, side-effect html validation easier added background shape
     20191029 - all html code events added by js, and config controlled by js min, max, value, defaults, changed label to number and  hooked slider to number, text alignment
     20191026 - added basic font effect control - normal, outline, shadow, glow
@@ -263,7 +264,176 @@ function DrawLine(){
     };
 }
 
-function BackgroundImage(){
+function TextFormatter(){
+
+    this.configure = function(ctx, text, maxWidth, maxHeight, maxCharsPerLine){
+
+        this.ctx = ctx;
+        this.text = text;
+        this.maxWidth = maxWidth;
+        this.maxHeight = maxHeight;
+        this.maxCharsPerLine = maxCharsPerLine;
+
+        return this;
+    };
+
+    this.calculateFontSizeFor = function(startFontSize, fontFamily) {
+
+        var validFontSize = startFontSize;
+
+        // remember current font size so we don't change it here
+        var oldFontSize = this.ctx.font;
+
+        this.ctx.font = validFontSize + "px " + fontFamily;
+
+        var lineLength = this.ctx.measureText("X").width * this.maxCharsPerLine;
+
+        var testFontSize = validFontSize;
+
+        while (lineLength < this.maxWidth) {
+            testFontSize++;
+            this.ctx.font = testFontSize + "px " + fontFamily;
+            lineLength = this.ctx.measureText("X").width * this.maxCharsPerLine;
+            if (lineLength < this.maxWidth) {
+                validFontSize = testFontSize;
+            }
+        }
+
+        // restore old font size
+        this.ctx.font = oldFontSize;
+
+        return validFontSize;
+    }
+
+    this.calculateFontSizeForActualText = function(startFontSize, fontFamily, actualText) {
+
+        var validFontSize = startFontSize;
+
+        // remember current font size so we don't change it here
+        var oldFontSize = this.ctx.font;
+
+        this.ctx.font = validFontSize + "px " + fontFamily;
+
+        var lineLength = this.ctx.measureText(actualText).width;
+
+        var testFontSize = validFontSize;
+
+        while (lineLength < this.maxWidth) {
+            testFontSize++;
+            this.ctx.font = testFontSize + "px " + fontFamily;
+            lineLength = this.ctx.measureText(actualText).width;
+            if (lineLength < this.maxWidth) {
+                validFontSize = testFontSize;
+            }
+        }
+
+        // restore old font size
+        this.ctx.font = oldFontSize;
+
+        return validFontSize;
+    }
+
+    this.getFontConfigString = function(thesize, thefamily){
+        return thesize + "px " + thefamily;
+    }
+
+    this.wrapText = function(forWidth) {
+        var lines = [];
+        var words = this.text.split(' ');
+        var line = '';
+
+        // add words until the length of the string is greater than maxWidth
+        for (var n = 0; n < words.length; n++) {
+            var testLine = line + words[n] + ' ';
+            var metrics = this.ctx.measureText(testLine);
+            var testWidth = metrics.width;
+            if (testWidth > forWidth && n > 0) {
+                lines.push(line);
+                line = words[n] + ' ';
+            } else {
+                line = testLine;
+            }
+        }
+        lines.push(line);
+
+        return lines;
+    }
+
+    this.formatTextFor = function(linespacing, textAlign, yoffset, xoffset, verticalCentering){
+
+        lineHeight = this.ctx.measureText("X").actualBoundingBoxAscent + linespacing;
+
+        maxLineWidth = this.ctx.measureText("X").width * this.maxCharsPerLine;
+
+        lines = this.wrapText(maxLineWidth);
+
+        drawLines = [];
+
+        // center text vertically
+        y=0;
+        if(verticalCentering) {
+            y = (this.maxHeight - (lines.length * lineHeight)) / 2;
+        }
+        y += yoffset;
+
+        //
+        // ALIGN SLOGAN TEXT HORIZONTALLY
+        //
+        // center text horizontally
+        longestLength = 0;
+        longestLine = 0;
+
+        // left align by default
+        for (x = 0; x < lines.length; x++) {
+            var lineLength = this.ctx.measureText(lines[x]).width;
+            if (lineLength > longestLength) {
+                longestLength = lineLength;
+                longestLine = x;
+            }
+        }
+
+        x = (this.maxWidth - longestLength) / 2;
+        if (x < 0) {
+            x = 0;
+        }
+        x += xoffset;
+
+
+        // apply x,y to lines
+        liney=y;
+        for (var n = 0; n < lines.length; n++) {
+            switch(textAlign) {
+                case "centerleft":
+                    // centered on longest line and shorter lines are on the left of this
+                    drawLines.push(new DrawLine().set(x, liney, lines[n]));
+                    break;
+                case "center":
+                    // all lines individually centered
+                    x = (this.ctx.canvas.width / 2) - (this.ctx.measureText(lines[n]).width / 2);
+                    drawLines.push(new DrawLine().set(x, liney, lines[n]));
+                    break;
+                case "centerright":
+                    // centered on longest line and shorter lines are on the right of this
+                    myx = x + (longestLength - this.ctx.measureText(lines[n]).width);
+                    drawLines.push(new DrawLine().set(myx, liney, lines[n]));
+                    break;
+                case "right":
+                    // right align with border
+                    x = xoffset + maxWidth - this.ctx.measureText(lines[n]).width;
+                    drawLines.push(new DrawLine().set(x, liney, lines[n]));
+                    break;
+                case "left":
+                default:
+                    // left align with border
+                    drawLines.push(new DrawLine().set(xoffset, liney, lines[n]));
+            }
+            liney += lineHeight;
+        }
+
+        return drawLines;
+
+    }
+}function BackgroundImage(){
 
     this.enabled = false;
     this.url = "";
@@ -602,6 +772,7 @@ function GuiConfigurator(){
         document.getElementById("applyeffecttofooter").addEventListener("change", renderImages);
         document.getElementById("effectColourPicker").addEventListener("change", renderImages);
         document.getElementById("texteffectsize").addEventListener("change", renderImages);
+        document.getElementById("footerborder").addEventListener("change", renderImages);
 
         if(backgroundImageFunctionality){
             document.querySelector(".backgroundimageconfig").style.display = "block"; // show controls
@@ -856,27 +1027,7 @@ function Renderer() {
 
 
 
-    function wrapText(ctx, text, maxWidth, lineHeight) {
-        var lines = [];
-        var words = text.split(' ');
-        var line = '';
 
-        // add words until the length of the string is greater than maxWidth
-        for (var n = 0; n < words.length; n++) {
-            var testLine = line + words[n] + ' ';
-            var metrics = ctx.measureText(testLine);
-            var testWidth = metrics.width;
-            if (testWidth > maxWidth && n > 0) {
-                lines.push(line);
-                line = words[n] + ' ';
-            } else {
-                line = testLine;
-            }
-        }
-        lines.push(line);
-
-        return lines;
-    }
 
 
 
@@ -943,34 +1094,9 @@ function Renderer() {
         }
     }
 
-    function calculateFontSizeFor(ctx, text, startFontSize, fontFamily, maxWidth, maxCharsPerLine) {
 
-        var validFontSize = startFontSize;
-        ctx.font = validFontSize + "px " + fontFamily;
 
-        var lineLength = ctx.measureText("X").width * maxCharsPerLine;
 
-        var testFontSize = validFontSize;
-
-        while (lineLength < maxWidth) {
-            testFontSize++;
-            ctx.font = testFontSize + "px " + fontFamily;
-            lineLength = ctx.measureText("X").width * maxCharsPerLine;
-            if (lineLength < maxWidth) {
-                validFontSize = testFontSize;
-            }
-        }
-
-        document.getElementById("fontsize").innerText = validFontSize;
-        document.getElementById("fontsizedisplay").innerText = validFontSize;
-
-        return validFontSize;
-
-    }
-
-    function getFontConfigString(thesize, thefamily){
-        return thesize + "px " + thefamily;
-    }
 
 
     // may not be able to use background image for jpeg due to tainted image
@@ -1021,7 +1147,6 @@ function Renderer() {
 
     function renderBackgroundColour(ctx, overridecolor){
 
-
         if(overridecolor){
             ctx.fillStyle = overridecolor;
         }else {
@@ -1038,98 +1163,37 @@ function Renderer() {
 
 
 
+
+    function displayFontSize(validFontSize){
+        document.getElementById("fontsize").innerText = validFontSize;
+        document.getElementById("fontsizedisplay").innerText = validFontSize;
+    }
+
+    var startFontSize = 15;
+
     function renderSlogan(ctx, text){
         // max width for the rendering
         var maxWidth = ctx.canvas.width - (border * 2);
         var maxHeight = ctx.canvas.height - (border * 2);
 
-        var startFontSize = 15;
+        textFormatter = new TextFormatter();
+        textFormatter.configure(ctx, text, maxWidth, maxHeight, maxCharsPerLine);
 
         if (autoSizeFont) {
-            fontSize = calculateFontSizeFor(ctx, text, startFontSize, fontfamily, maxWidth, maxCharsPerLine);
-            ctx.font = getFontConfigString(fontSize, fontfamily)
+            fontSize = textFormatter.calculateFontSizeFor(startFontSize, fontfamily);
+            ctx.font = textFormatter.getFontConfigString(fontSize, fontfamily);
+            displayFontSize(fontSize);
         } else {
             // font is set as a global
             //fontSize = document.getElementById("fontsize").value;
-            ctx.font = getFontConfigString(fontSize, fontfamily)
+            ctx.font = textFormatter.getFontConfigString(fontSize, fontfamily);
+            displayFontSize(fontSize);
         }
 
         // setFooterConfigFromTextConfig(footerConfig, fontSize, fontfamily, textColor);
 
-
-
-
-        lineHeight = ctx.measureText("X").actualBoundingBoxAscent + linespacing;
-
-        maxLineWidth = ctx.measureText("X").width * maxCharsPerLine;
-
-
-        lines = wrapText(ctx, text, maxLineWidth, lineHeight);
-
-        drawLines = [];
-
-        // center text vertically
-        y = (maxHeight - (lines.length * lineHeight)) / 2;
-        y += sloganyadjust;
-        y += border;
-
-
-        //
-        // ALIGN SLOGAN TEXT HORIZONTALLY
-        //
-        // center text horizontally
-        longestLength = 0;
-        longestLine = 0;
-
-        // left align by default
-        for (x = 0; x < lines.length; x++) {
-            var lineLength = ctx.measureText(lines[x]).width;
-            if (lineLength > longestLength) {
-                longestLength = lineLength;
-                longestLine = x;
-            }
-        }
-
-        x = (maxWidth - longestLength) / 2;
-        if (x < 0) {
-            x = 0;
-        }
-        x += border;
-
-
-        // apply x,y to lines
-        liney=y;
-        for (var n = 0; n < lines.length; n++) {
-            switch(textAlign) {
-                case "centerleft":
-                    // centered on longest line and shorter lines are on the left of this
-                    drawLines.push(new DrawLine().set(x, liney, lines[n]));
-                    break;
-                case "center":
-                    // all lines individually centered
-                    x = (ctx.canvas.width / 2) - (ctx.measureText(lines[n]).width / 2);
-                    drawLines.push(new DrawLine().set(x, liney, lines[n]));
-                    break;
-                case "centerright":
-                    // centered on longest line and shorter lines are on the right of this
-                    myx = x + (longestLength - ctx.measureText(lines[n]).width);
-                    drawLines.push(new DrawLine().set(myx, liney, lines[n]));
-                    break;
-                case "right":
-                    // right align with border
-                    x = border + maxWidth - ctx.measureText(lines[n]).width;
-                    drawLines.push(new DrawLine().set(x, liney, lines[n]));
-                    break;
-                case "left":
-                default:
-                    // left align with border
-                    drawLines.push(new DrawLine().set(border, liney, lines[n]));
-            }
-            liney += lineHeight;
-        }
-
-
-
+        var centerTextVertically = true;
+        drawLines = textFormatter.formatTextFor(linespacing, textAlign, sloganyadjust + border, border, centerTextVertically);
 
         renderLinesWithEffect(ctx, drawLines, effectStyle);
         //renderLines(ctx, lines, x, y, lineHeight);
@@ -1142,17 +1206,43 @@ function Renderer() {
 
         if(!footerRenderingOn){return;}
 
-        footerx = ctx.canvas.width - ctx.measureText(text).width;
-        footerx = footerx / 2;
+        var maxWidth = ctx.canvas.width - (border * 2);
+        var maxHeight = ctx.canvas.height - (border * 2);
+
+        var textFormatter = new TextFormatter();
+
+        // use same formatting for footer as the main text - for single line of text
+        textFormatter.configure(ctx, text, maxWidth, maxHeight, text.length);
 
 
+        // if auto size is on, and line is too wide for screen then change font size for footer
+        if (autoSizeFont) {
+            if(ctx.measureText(text).width > maxWidth){
+                // autosize to fit text into space
+                fontSize = textFormatter.calculateFontSizeForActualText(startFontSize, fontfamily, text);
+                ctx.font = textFormatter.getFontConfigString(fontSize, fontfamily);
+            }
+        }
+        // use same font as main text, but could change size here
+        // fontSize = textFormatter.calculateFontSizeFor(startFontSize, fontfamily);
+        //ctx.font = textFormatter.getFontConfigString(fontSize, fontfamily);
+
+
+        // assume single line
+        // footerx = ctx.canvas.width - ctx.measureText(text).width;
+        // footerx = footerx / 2;
+
+        // find y for footer
         footery = ctx.measureText(text).actualBoundingBoxAscent + footerborder;
         footery = ctx.canvas.height - footery;
 
-        var footer = [text];
+        var centerTextVertically = false;
+        drawLines = textFormatter.formatTextFor(linespacing, "center", footery, 0, centerTextVertically);
+
+        //var footer = [text];
         //renderLines(ctx, footer, footerx, footery, 0);
-        var drawLines = [];
-        drawLines.push(new DrawLine().set(footerx, footery, footer));
+        //var drawLines = [];
+        //drawLines.push(new DrawLine().set(footerx, footery, footer));
         if(applyEffectToFooter){
             renderLinesWithEffect(ctx, drawLines, effectStyle);
         }else{

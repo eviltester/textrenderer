@@ -7,3 +7,6 @@
 // TODO: add linear gradiant background, background shape
 // TODO: add radial gradiant background, background shape
 // TODO: prototype dragging slogan, background shape, footer, background image
+// TODO: create separate Auto Size radio set for footer - [] Auto Size [] Use Slogan Size   (then add [] Custom Size)
+// TODO: option to wrap footer text with max line etc. as per slogan
+// TODO: add drop down of images if configured by page

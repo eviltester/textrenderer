@@ -3,6 +3,7 @@ cat ./jsdev/version-comment.js \
     ./jsdev/gui-html.html \
     ./jsdev/gui-html-post.js \
     ./jsdev/draw-line.js \
+    ./jsdev/text-formatter.js \
     ./jsdev/background-image.js \
     ./jsdev/colour-convertor.js \
     ./jsdev/shape-draw.js \
