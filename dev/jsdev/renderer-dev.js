@@ -77,16 +77,7 @@ function Renderer() {
     }
 
 
-    function setTextAlign(){
-        textAlign = "centerleft";
-        var elems = document.querySelectorAll(".textaligncenterconfig input[type='radio']");
-        for(var elemindex=0; elemindex<elems.length; elemindex++){
-            if(elems[elemindex].checked){
-                textAlign = elems[elemindex].getAttribute("value");
-                return;
-            }
-        }
-    }
+
 
     this.displayIn = function(anId) {
         new GuiConfigurator().displayIn(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality, setTextAlign);
@@ -281,11 +272,11 @@ function Renderer() {
     }
 
 
-    var footerRenderingOn=true;
+
 
     function renderFooter(ctx, text) {
 
-        if(!footerRenderingOn){return;}
+        if(!footerConfig.isDisplayed){return;}
 
         var maxWidth = ctx.canvas.width - (border * 2);
         var maxHeight = ctx.canvas.height - (border * 2);
@@ -293,11 +284,12 @@ function Renderer() {
         var textFormatter = new TextFormatter();
 
         // use same formatting for footer as the main text - for single line of text
+        //footerConfig.autoMode=="custom"
         textFormatter.configure(ctx, text, maxWidth, maxHeight, text.length);
 
 
         // if auto size is on, and line is too wide for screen then change font size for footer
-        if (autoSizeFont) {
+        if (footerConfig.autoMode=="self") {
             if(ctx.measureText(text).width > maxWidth){
                 // autosize to fit text into space
                 fontSize = textFormatter.calculateFontSizeForActualText(startFontSize, fontfamily, text);
@@ -314,7 +306,7 @@ function Renderer() {
         // footerx = footerx / 2;
 
         // find y for footer
-        footery = ctx.measureText(text).actualBoundingBoxAscent + footerborder;
+        footery = ctx.measureText(text).actualBoundingBoxAscent + footerConfig.footerYOffset;
         footery = ctx.canvas.height - footery;
 
         var centerTextVertically = false;
@@ -338,13 +330,14 @@ function Renderer() {
 
 
     var fontfamily = "Calibri";
+    var fontSize=80;
 
     var autoSizeFont=true;
 
     var maxCharsPerLine = 15;
     var linespacing = 30;
     var border = 100;
-    var footerborder = 30;
+
     var sloganyadjust = 0;
     var backgroundOpacity=0;
 
@@ -361,12 +354,19 @@ function Renderer() {
 
     // // TODO: allow footer text size and font to be different from the main text
     //
-    // var footerConfig = {
-    //     sameAsText: true,
-    //     fontFamily: undefined,
-    //     textColor: undefined,
-    //     fontSize: undefined
-    // };
+
+
+    function FooterConfig(){
+        this.autoMode = "slogan";  // slogan, self, custom
+        this.isDisplayed=true;
+        this.footerYOffset=30;
+        this.fontFamily= undefined;
+        this.textColor= undefined;
+        this.fontSize= undefined;
+    }
+
+    var footerConfig = new FooterConfig();
+
     //
     // function getFooterTextColor(){
     //     if(footerConfig.textColor){
@@ -401,6 +401,27 @@ function Renderer() {
     //     // else - leave it as it is
     // }
 
+    function setTextAlign(){
+        textAlign = "centerleft";
+        var elems = document.querySelectorAll(".textaligncenterconfig input[type='radio']");
+        for(var elemindex=0; elemindex<elems.length; elemindex++){
+            if(elems[elemindex].checked){
+                textAlign = elems[elemindex].getAttribute("value");
+                return;
+            }
+        }
+    }
+
+    function setFooterAutoSize(){
+        footerConfig.autoMode = "slogan";
+        var elems = document.querySelectorAll(".footertextsizeauto input[type='radio']");
+        for(var elemindex=0; elemindex<elems.length; elemindex++){
+            if(elems[elemindex].checked){
+                footerConfig.autoMode = elems[elemindex].getAttribute("value");
+                return;
+            }
+        }
+    }
 
     function setGlobalsFromGui() {
         setGlobals(
@@ -412,7 +433,6 @@ function Renderer() {
             document.getElementById("maxcharsperline").value,
             document.getElementById('textlinespacing').value,
             document.getElementById('textborder').value,
-            document.getElementById('footerborder').value,
             document.getElementById('sloganyadjust').value,
             document.getElementById('backgroundimageurlinput').value,
             document.getElementById('backgroundcolouropacity').value,
@@ -422,8 +442,11 @@ function Renderer() {
             document.getElementById('applyeffecttofooter').checked,
             document.getElementById('effectColourPicker').value,
             document.getElementById('texteffectsize').value,
-            document.getElementById('displayFooter').checked
+        );
 
+        setFooterConfig(
+            document.getElementById('displayFooter').checked,
+            document.getElementById('footerborder').value,
         );
         // TODO: rework this, created new extract because it was getting too big
         setBackGroundShapeGlobals(
@@ -438,11 +461,16 @@ function Renderer() {
         );
     }
 
-    function setGlobals(useBackColor, useTextColor, font, useFontSize, useAutoSizeFont, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder,
+    function setFooterConfig(useDisplayFooter, useFooterBorder){
+        footerConfig.isDisplayed = useDisplayFooter;
+        footerConfig.footerYOffset = parseInt(useFooterBorder);
+        setFooterAutoSize();
+    }
+
+    function setGlobals(useBackColor, useTextColor, font, useFontSize, useAutoSizeFont, useMaxCharsPerLine, useLineSpacing, useBorder,
                         usesloganyadjust,
                         useImageUrl, useOpacity,
-                        useTextEffectStyle, applyThisEffectToFooter, useEffectColour, useEffectSize,
-                        useDisplayFooter
+                        useTextEffectStyle, applyThisEffectToFooter, useEffectColour, useEffectSize
     ) {
 
         backColor = useBackColor;
@@ -453,7 +481,6 @@ function Renderer() {
         maxCharsPerLine = parseInt(useMaxCharsPerLine);
         linespacing = parseInt(useLineSpacing);
         border = parseInt(useBorder);
-        footerborder = parseInt(useFooterBorder);
         sloganyadjust = parseInt(usesloganyadjust);
 
         effectStyle= parseInt(useTextEffectStyle);
@@ -468,8 +495,6 @@ function Renderer() {
             backgroundimage = undefined;
             backgroundOpacity = 1;
         }
-
-        footerRenderingOn = useDisplayFooter;
     }
 
     function setBackGroundShapeGlobals(showShape, useColour, useX, useY, useWidth, useHeight, useOpacity, useAngle){

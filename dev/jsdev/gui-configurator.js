@@ -60,6 +60,13 @@ function GuiConfigurator(){
             });
         }
 
+        var elems = document.querySelectorAll(".footertextsizeauto input")
+        for(elemindex=0; elemindex<elems.length; elemindex++){
+            elems[elemindex].addEventListener("change", function(){
+                // set footer auto
+                renderImages()
+            });
+        }
 
         document.getElementById("autofontsize").addEventListener("change", renderImages);
         document.getElementById("displayFooter").addEventListener("change", renderImages);
