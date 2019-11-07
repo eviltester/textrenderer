@@ -756,23 +756,23 @@ function GuiConfigurator(){
             });
         }
 
-        document.getElementById("fontsize").addEventListener("change", renderImages);
-        document.getElementById("maxcharsperline").addEventListener("change", renderImages);
-        document.getElementById("textlinespacing").addEventListener("change", renderImages);
-        document.getElementById("textborder").addEventListener("change", renderImages);
+        //document.getElementById("fontsize").addEventListener("change", renderImages);
+        //document.getElementById("maxcharsperline").addEventListener("change", renderImages);
+        //document.getElementById("textlinespacing").addEventListener("change", renderImages);
+        //document.getElementById("textborder").addEventListener("change", renderImages);
 
         document.getElementById("autofontsize").addEventListener("change", renderImages);
         document.getElementById("displayFooter").addEventListener("change", renderImages);
 
         document.getElementById("backcolorpicker").addEventListener("change", renderImages);
         document.getElementById("textcolorpicker").addEventListener("change", renderImages);
-        document.getElementById("sloganyadjust").addEventListener("change", renderImages);
+        //document.getElementById("sloganyadjust").addEventListener("change", renderImages);
 
         document.getElementById("texteffectstyleselector").addEventListener("change", renderImages);
         document.getElementById("applyeffecttofooter").addEventListener("change", renderImages);
         document.getElementById("effectColourPicker").addEventListener("change", renderImages);
-        document.getElementById("texteffectsize").addEventListener("change", renderImages);
-        document.getElementById("footerborder").addEventListener("change", renderImages);
+       // document.getElementById("texteffectsize").addEventListener("change", renderImages);
+        //document.getElementById("footerborder").addEventListener("change", renderImages);
 
         if(backgroundImageFunctionality){
             document.querySelector(".backgroundimageconfig").style.display = "block"; // show controls
@@ -791,81 +791,76 @@ function GuiConfigurator(){
 
         setDefaultSliderValues();
 
-        createSliderNumberHook('fontsize', 'fontsizedisplay');
-        document.getElementById('fontsize').addEventListener("change", function(){
-                document.getElementById('autofontsize').checked=false
-            }
-        );
-        document.getElementById('fontsizedisplay').addEventListener("change", function(){
-                document.getElementById('autofontsize').checked=false
-            }
-        );
-        document.getElementById('fontsizedisplay').addEventListener("input", function(){
-                document.getElementById('autofontsize').checked=false
-            }
-        );
-        document.getElementById("fontsizedisplay").addEventListener("input", renderImages);
-        document.getElementById("fontsizedisplay").addEventListener("change", renderImages);
+        adjustCheckStatusWhenElementId("fontsize", "change", "autofontsize", false);
+        adjustCheckStatusWhenElementId("fontsizedisplay", "change", "autofontsize", false);
+        adjustCheckStatusWhenElementId("fontsizedisplay", "input", "autofontsize", false);
 
-        createSliderNumberHook('maxcharsperline', 'maxcharsperlinedisplay');
-        createSliderNumberHook('sloganyadjust', 'sloganyadjustdisplay');
-        createSliderNumberHook('textlinespacing', 'textlinespacingdisplay');
-        createSliderNumberHook('textborder', 'textborderdisplay');
-        createSliderNumberHook('footerborder', 'footerborderdisplay');
-        createSliderNumberHook('texteffectsize', 'texteffectsizedisplay');
+        // createSliderNumberHook('fontsize', 'fontsizedisplay');
+        // document.getElementById('fontsize').addEventListener("change", function(){
+        //         document.getElementById('autofontsize').checked=false
+        //     }
+        // );
+        // document.getElementById('fontsizedisplay').addEventListener("change", function(){
+        //         document.getElementById('autofontsize').checked=false
+        //     }
+        // );
+        // document.getElementById('fontsizedisplay').addEventListener("input", function(){
+        //         document.getElementById('autofontsize').checked=false
+        //     }
+        // );
+        // document.getElementById("fontsizedisplay").addEventListener("input", renderImages);
+        // document.getElementById("fontsizedisplay").addEventListener("change", renderImages);
 
-        document.getElementById("maxcharsperlinedisplay").addEventListener("change", renderImages);
-        document.getElementById("sloganyadjustdisplay").addEventListener("change", renderImages);
-        document.getElementById("textlinespacingdisplay").addEventListener("change", renderImages);
-        document.getElementById("textborderdisplay").addEventListener("change", renderImages);
-        document.getElementById("footerborderdisplay").addEventListener("change", renderImages);
-        document.getElementById("texteffectsizedisplay").addEventListener("change", renderImages);
+        setMinMaxValueHook(1, 200, 80, 'fontsize', 'fontsizedisplay', renderImages);
 
-        document.getElementById("maxcharsperlinedisplay").addEventListener("input", renderImages);
-        document.getElementById("sloganyadjustdisplay").addEventListener("input", renderImages);
-        document.getElementById("textlinespacingdisplay").addEventListener("input", renderImages);
-        document.getElementById("textborderdisplay").addEventListener("input", renderImages);
-        document.getElementById("footerborderdisplay").addEventListener("input", renderImages);
-        document.getElementById("texteffectsizedisplay").addEventListener("input", renderImages);
+        setMinMaxValueHook(1, 50, 15, 'maxcharsperline', 'maxcharsperlinedisplay', renderImages);
+        setMinMaxValueHook(-300, 300, 0, 'sloganyadjust', 'sloganyadjustdisplay', renderImages);
+        setMinMaxValueHook(1, 200, 30, 'textlinespacing', 'textlinespacingdisplay', renderImages);
+        setMinMaxValueHook(1, 400, 100, 'textborder', 'textborderdisplay', renderImages);
+        setMinMaxValueHook(1, -400, 30, 'footerborder', 'footerborderdisplay', renderImages);
+        setMinMaxValueHook(0, 200, 6, 'texteffectsize', 'texteffectsizedisplay', renderImages);
+
+        // createSliderNumberHook('maxcharsperline', 'maxcharsperlinedisplay');
+        // createSliderNumberHook('sloganyadjust', 'sloganyadjustdisplay');
+        // createSliderNumberHook('textlinespacing', 'textlinespacingdisplay');
+        // createSliderNumberHook('textborder', 'textborderdisplay');
+        // createSliderNumberHook('footerborder', 'footerborderdisplay');
+        // createSliderNumberHook('texteffectsize', 'texteffectsizedisplay');
+        //
+        // document.getElementById("maxcharsperlinedisplay").addEventListener("change", renderImages);
+        // document.getElementById("sloganyadjustdisplay").addEventListener("change", renderImages);
+        // document.getElementById("textlinespacingdisplay").addEventListener("change", renderImages);
+        // document.getElementById("textborderdisplay").addEventListener("change", renderImages);
+        // document.getElementById("footerborderdisplay").addEventListener("change", renderImages);
+        // document.getElementById("texteffectsizedisplay").addEventListener("change", renderImages);
+        //
+        // document.getElementById("maxcharsperlinedisplay").addEventListener("input", renderImages);
+        // document.getElementById("sloganyadjustdisplay").addEventListener("input", renderImages);
+        // document.getElementById("textlinespacingdisplay").addEventListener("input", renderImages);
+        // document.getElementById("textborderdisplay").addEventListener("input", renderImages);
+        // document.getElementById("footerborderdisplay").addEventListener("input", renderImages);
+        // document.getElementById("texteffectsizedisplay").addEventListener("input", renderImages);
 
 
-        // TODO: this shows we still have some work to do to make setting up the GUI simpler for event hooks
-        // look instead for elements under an element of different types
         showHideButtonConfigure("#show-hide-background-shape", ".backgroundshapes", false);
-        createSliderNumberHook('shapeConfigXShape1', 'shapeConfigXShape1Display');
-        createSliderNumberHook('shapeConfigYShape1', 'shapeConfigYShape1Display');
-        createSliderNumberHook('shapeConfigWidthShape1', 'shapeConfigWidthShape1Display');
-        createSliderNumberHook('shapeConfigHeightShape1', 'shapeConfigHeightShape1Display');
-        createSliderNumberHook('shapeConfigOpacityShape1', 'shapeConfigOpacityShape1Display');
-        createSliderNumberHook('shapeConfigAngleShape1', 'shapeConfigAngleShape1Display');
-        setMinMaxValue(0, 1080, 200, 'shapeConfigXShape1', 'shapeConfigXShape1Display');
-        setMinMaxValue(0, 1080, 200, 'shapeConfigYShape1', 'shapeConfigYShape1Display');
-        setMinMaxValue(0, 1080, 200, 'shapeConfigWidthShape1', 'shapeConfigWidthShape1Display');
-        setMinMaxValue(0, 1080, 200, 'shapeConfigHeightShape1', 'shapeConfigHeightShape1Display');
-        setMinMaxValue(1, 100, 100, 'shapeConfigOpacityShape1', 'shapeConfigOpacityShape1Display');
-        setMinMaxValue(0, 180, 0, 'shapeConfigAngleShape1', 'shapeConfigAngleShape1Display');
-        document.getElementById("shapeConfigXShape1").addEventListener("change", renderImages);
-        document.getElementById("shapeConfigYShape1").addEventListener("change", renderImages);
-        document.getElementById("shapeConfigWidthShape1").addEventListener("change", renderImages);
-        document.getElementById("shapeConfigHeightShape1").addEventListener("change", renderImages);
-        document.getElementById("shapeConfigOpacityShape1").addEventListener("change", renderImages);
-        document.getElementById("shapeConfigAngleShape1").addEventListener("change", renderImages);
+
+        setMinMaxValueHook(0, 1080, 200, 'shapeConfigXShape1', 'shapeConfigXShape1Display', renderImages);
+        setMinMaxValueHook(0, 1080, 200, 'shapeConfigYShape1', 'shapeConfigYShape1Display', renderImages);
+        setMinMaxValueHook(0, 1080, 200, 'shapeConfigWidthShape1', 'shapeConfigWidthShape1Display', renderImages);
+        setMinMaxValueHook(0, 1080, 200, 'shapeConfigHeightShape1', 'shapeConfigHeightShape1Display', renderImages);
+        setMinMaxValueHook(1, 100, 100, 'shapeConfigOpacityShape1', 'shapeConfigOpacityShape1Display', renderImages);
+        setMinMaxValueHook(0, 180, 0, 'shapeConfigAngleShape1', 'shapeConfigAngleShape1Display', renderImages);
 
         document.getElementById("shapeConfigShape1RenderIt").addEventListener("change", renderImages);
         document.getElementById("shapeColourPickerShape1").addEventListener("change", renderImages);
-        document.getElementById("shapeConfigXShape1Display").addEventListener("change", renderImages);
-        document.getElementById("shapeConfigYShape1Display").addEventListener("change", renderImages);
-        document.getElementById("shapeConfigWidthShape1Display").addEventListener("change", renderImages);
-        document.getElementById("shapeConfigHeightShape1Display").addEventListener("change", renderImages);
-        document.getElementById("shapeConfigOpacityShape1Display").addEventListener("change", renderImages);
-        document.getElementById("shapeConfigAngleShape1Display").addEventListener("change", renderImages);
-        document.getElementById("shapeConfigXShape1Display").addEventListener("imput", renderImages);
-        document.getElementById("shapeConfigYShape1Display").addEventListener("imput", renderImages);
-        document.getElementById("shapeConfigWidthShape1Display").addEventListener("imput", renderImages);
-        document.getElementById("shapeConfigHeightShape1Display").addEventListener("imput", renderImages);
-        document.getElementById("shapeConfigOpacityShape1Display").addEventListener("imput", renderImages);
-        document.getElementById("shapeConfigAngleShape1Display").addEventListener("imput", renderImages);
 
+    }
+
+    function adjustCheckStatusWhenElementId(elementid, eventName, checkBoxId, checkValue){
+        document.getElementById(elementid).addEventListener(eventName, function(){
+                document.getElementById(checkBoxId).checked=checkValue
+            }
+        );
     }
 
     function setDefaultSliderValues(){
@@ -909,6 +904,15 @@ function GuiConfigurator(){
         }
     }
 
+    function setMinMaxValueHook(theMin, theMax, theValue, sliderid, numberid, renderImages){
+
+        setMinMaxValue(theMin, theMax, theValue, sliderid, numberid);
+        createSliderNumberHook(sliderid, numberid);
+        document.getElementById(sliderid).addEventListener("change", renderImages);
+        document.getElementById(numberid).addEventListener("change", renderImages);
+        document.getElementById(numberid).addEventListener("input", renderImages);
+
+    }
 }
 
 
