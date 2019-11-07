@@ -25,10 +25,14 @@ function GuiConfigurator(){
     }
 
     this.displayIn = function(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality, setTextAlign) {
+
+        // add the HTML to the page
         if (!document.getElementById("rendering")) {
             document.getElementById(anId).insertAdjacentHTML(
                 'beforeend', new GuiHtml().html());
         }
+
+        // setup all the events and defaults
 
         showHideButtonConfigure("#show-hide-text-config", ".textbodyconfig", true);
         showHideButtonConfigure("#show-hide-footer-config", ".textfooterconfig", true);
@@ -56,23 +60,16 @@ function GuiConfigurator(){
             });
         }
 
-        //document.getElementById("fontsize").addEventListener("change", renderImages);
-        //document.getElementById("maxcharsperline").addEventListener("change", renderImages);
-        //document.getElementById("textlinespacing").addEventListener("change", renderImages);
-        //document.getElementById("textborder").addEventListener("change", renderImages);
 
         document.getElementById("autofontsize").addEventListener("change", renderImages);
         document.getElementById("displayFooter").addEventListener("change", renderImages);
 
         document.getElementById("backcolorpicker").addEventListener("change", renderImages);
         document.getElementById("textcolorpicker").addEventListener("change", renderImages);
-        //document.getElementById("sloganyadjust").addEventListener("change", renderImages);
 
         document.getElementById("texteffectstyleselector").addEventListener("change", renderImages);
         document.getElementById("applyeffecttofooter").addEventListener("change", renderImages);
         document.getElementById("effectColourPicker").addEventListener("change", renderImages);
-       // document.getElementById("texteffectsize").addEventListener("change", renderImages);
-        //document.getElementById("footerborder").addEventListener("change", renderImages);
 
         if(backgroundImageFunctionality){
             document.querySelector(".backgroundimageconfig").style.display = "block"; // show controls
@@ -95,52 +92,13 @@ function GuiConfigurator(){
         adjustCheckStatusWhenElementId("fontsizedisplay", "change", "autofontsize", false);
         adjustCheckStatusWhenElementId("fontsizedisplay", "input", "autofontsize", false);
 
-        // createSliderNumberHook('fontsize', 'fontsizedisplay');
-        // document.getElementById('fontsize').addEventListener("change", function(){
-        //         document.getElementById('autofontsize').checked=false
-        //     }
-        // );
-        // document.getElementById('fontsizedisplay').addEventListener("change", function(){
-        //         document.getElementById('autofontsize').checked=false
-        //     }
-        // );
-        // document.getElementById('fontsizedisplay').addEventListener("input", function(){
-        //         document.getElementById('autofontsize').checked=false
-        //     }
-        // );
-        // document.getElementById("fontsizedisplay").addEventListener("input", renderImages);
-        // document.getElementById("fontsizedisplay").addEventListener("change", renderImages);
-
         setMinMaxValueHook(1, 200, 80, 'fontsize', 'fontsizedisplay', renderImages);
-
         setMinMaxValueHook(1, 50, 15, 'maxcharsperline', 'maxcharsperlinedisplay', renderImages);
         setMinMaxValueHook(-300, 300, 0, 'sloganyadjust', 'sloganyadjustdisplay', renderImages);
         setMinMaxValueHook(1, 200, 30, 'textlinespacing', 'textlinespacingdisplay', renderImages);
         setMinMaxValueHook(1, 400, 100, 'textborder', 'textborderdisplay', renderImages);
-        setMinMaxValueHook(1, -400, 30, 'footerborder', 'footerborderdisplay', renderImages);
+        setMinMaxValueHook(-400, 500, 30, 'footerborder', 'footerborderdisplay', renderImages);
         setMinMaxValueHook(0, 200, 6, 'texteffectsize', 'texteffectsizedisplay', renderImages);
-
-        // createSliderNumberHook('maxcharsperline', 'maxcharsperlinedisplay');
-        // createSliderNumberHook('sloganyadjust', 'sloganyadjustdisplay');
-        // createSliderNumberHook('textlinespacing', 'textlinespacingdisplay');
-        // createSliderNumberHook('textborder', 'textborderdisplay');
-        // createSliderNumberHook('footerborder', 'footerborderdisplay');
-        // createSliderNumberHook('texteffectsize', 'texteffectsizedisplay');
-        //
-        // document.getElementById("maxcharsperlinedisplay").addEventListener("change", renderImages);
-        // document.getElementById("sloganyadjustdisplay").addEventListener("change", renderImages);
-        // document.getElementById("textlinespacingdisplay").addEventListener("change", renderImages);
-        // document.getElementById("textborderdisplay").addEventListener("change", renderImages);
-        // document.getElementById("footerborderdisplay").addEventListener("change", renderImages);
-        // document.getElementById("texteffectsizedisplay").addEventListener("change", renderImages);
-        //
-        // document.getElementById("maxcharsperlinedisplay").addEventListener("input", renderImages);
-        // document.getElementById("sloganyadjustdisplay").addEventListener("input", renderImages);
-        // document.getElementById("textlinespacingdisplay").addEventListener("input", renderImages);
-        // document.getElementById("textborderdisplay").addEventListener("input", renderImages);
-        // document.getElementById("footerborderdisplay").addEventListener("input", renderImages);
-        // document.getElementById("texteffectsizedisplay").addEventListener("input", renderImages);
-
 
         showHideButtonConfigure("#show-hide-background-shape", ".backgroundshapes", false);
 
@@ -163,14 +121,31 @@ function GuiConfigurator(){
         );
     }
 
+    function DefaultMinMax(){
+
+        this.theMin=1;
+        this.theMax=100;
+        this.theValue=50;
+        this.sliderid="";
+        this.numberid="";
+
+        this.set = function(theMin, theMax, theValue, sliderid, numberid){
+            this.theMin= theMin;
+            this.theMax= theMax;
+            this.theValue= theValue;
+            this.sliderid= sliderid;
+            this.numberid= numberid;
+            return this;
+        }
+    }
+
+    var defaultMinMaxValues=[];
+
     function setDefaultSliderValues(){
-        setMinMaxValue(1, 200, 80, 'fontsize', 'fontsizedisplay');
-        setMinMaxValue(1, 50, 15, 'maxcharsperline', 'maxcharsperlinedisplay');
-        setMinMaxValue(-300, 300, 0, 'sloganyadjust', 'sloganyadjustdisplay');
-        setMinMaxValue(1, 200, 30, 'textlinespacing', 'textlinespacingdisplay');
-        setMinMaxValue(1, 400, 100, 'textborder', 'textborderdisplay');
-        setMinMaxValue(-400, 500, 30, 'footerborder', 'footerborderdisplay');
-        setMinMaxValue(0, 200, 6, 'texteffectsize', 'texteffectsizedisplay');
+        for(var index=0; index<defaultMinMaxValues.length; index++){
+            var defaults = defaultMinMaxValues[index];
+            setMinMaxValue(defaults.theMin, defaults.theMax, defaults.theValue, defaults.sliderid, defaults.numberid);
+        }
     }
 
     function createSliderNumberHook(sliderid, numberid){
@@ -205,6 +180,8 @@ function GuiConfigurator(){
     }
 
     function setMinMaxValueHook(theMin, theMax, theValue, sliderid, numberid, renderImages){
+
+        defaultMinMaxValues.push(new DefaultMinMax().set(theMin, theMax, theValue, sliderid, numberid));
 
         setMinMaxValue(theMin, theMax, theValue, sliderid, numberid);
         createSliderNumberHook(sliderid, numberid);
