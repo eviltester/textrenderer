@@ -23,11 +23,12 @@
 
 
 label{
-    display: block;
+    display: inline-block;
 }
 
 .slider{
-    width:100%;
+    width: auto;
+    min-width: 50%;
 }
 
 .colourpicker{

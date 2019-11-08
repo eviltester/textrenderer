@@ -126,6 +126,13 @@ function GuiHtml(){
                     <div class="displayFooterConfig">
                         <input type="checkbox" id="displayFooter" checked>Display Footer
                     </div>
+                    <div class="footertextsizeauto">
+                        <input id="footertextsizeautoslogan" type="radio" name="footertextsizeauto" value="slogan" checked>Slogan Size
+                        <input id="footertextsizeautoself" type="radio" name="footertextsizeauto" value="self">Auto Size
+                        <!--
+                        <input id="footertextsizeautocustom" type="radio" name="footertextsizeauto" value="custom">Custom Size
+                        -->
+                    </div>
                     <div class="footerVerticalAdjustConfig">
                         <label for="footerborder">Footer Vertical Adjust <input type="number"  id="footerborderdisplay"/></label>
                         <input type="range" class="slider" id="footerborder">
@@ -725,10 +732,14 @@ function GuiConfigurator(){
     }
 
     this.displayIn = function(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality, setTextAlign) {
+
+        // add the HTML to the page
         if (!document.getElementById("rendering")) {
             document.getElementById(anId).insertAdjacentHTML(
                 'beforeend', new GuiHtml().html());
         }
+
+        // setup all the events and defaults
 
         showHideButtonConfigure("#show-hide-text-config", ".textbodyconfig", true);
         showHideButtonConfigure("#show-hide-footer-config", ".textfooterconfig", true);
@@ -756,23 +767,23 @@ function GuiConfigurator(){
             });
         }
 
-        //document.getElementById("fontsize").addEventListener("change", renderImages);
-        //document.getElementById("maxcharsperline").addEventListener("change", renderImages);
-        //document.getElementById("textlinespacing").addEventListener("change", renderImages);
-        //document.getElementById("textborder").addEventListener("change", renderImages);
+        var elems = document.querySelectorAll(".footertextsizeauto input")
+        for(elemindex=0; elemindex<elems.length; elemindex++){
+            elems[elemindex].addEventListener("change", function(){
+                // set footer auto
+                renderImages()
+            });
+        }
 
         document.getElementById("autofontsize").addEventListener("change", renderImages);
         document.getElementById("displayFooter").addEventListener("change", renderImages);
 
         document.getElementById("backcolorpicker").addEventListener("change", renderImages);
         document.getElementById("textcolorpicker").addEventListener("change", renderImages);
-        //document.getElementById("sloganyadjust").addEventListener("change", renderImages);
 
         document.getElementById("texteffectstyleselector").addEventListener("change", renderImages);
         document.getElementById("applyeffecttofooter").addEventListener("change", renderImages);
         document.getElementById("effectColourPicker").addEventListener("change", renderImages);
-       // document.getElementById("texteffectsize").addEventListener("change", renderImages);
-        //document.getElementById("footerborder").addEventListener("change", renderImages);
 
         if(backgroundImageFunctionality){
             document.querySelector(".backgroundimageconfig").style.display = "block"; // show controls
@@ -795,52 +806,13 @@ function GuiConfigurator(){
         adjustCheckStatusWhenElementId("fontsizedisplay", "change", "autofontsize", false);
         adjustCheckStatusWhenElementId("fontsizedisplay", "input", "autofontsize", false);
 
-        // createSliderNumberHook('fontsize', 'fontsizedisplay');
-        // document.getElementById('fontsize').addEventListener("change", function(){
-        //         document.getElementById('autofontsize').checked=false
-        //     }
-        // );
-        // document.getElementById('fontsizedisplay').addEventListener("change", function(){
-        //         document.getElementById('autofontsize').checked=false
-        //     }
-        // );
-        // document.getElementById('fontsizedisplay').addEventListener("input", function(){
-        //         document.getElementById('autofontsize').checked=false
-        //     }
-        // );
-        // document.getElementById("fontsizedisplay").addEventListener("input", renderImages);
-        // document.getElementById("fontsizedisplay").addEventListener("change", renderImages);
-
         setMinMaxValueHook(1, 200, 80, 'fontsize', 'fontsizedisplay', renderImages);
-
         setMinMaxValueHook(1, 50, 15, 'maxcharsperline', 'maxcharsperlinedisplay', renderImages);
         setMinMaxValueHook(-300, 300, 0, 'sloganyadjust', 'sloganyadjustdisplay', renderImages);
         setMinMaxValueHook(1, 200, 30, 'textlinespacing', 'textlinespacingdisplay', renderImages);
         setMinMaxValueHook(1, 400, 100, 'textborder', 'textborderdisplay', renderImages);
-        setMinMaxValueHook(1, -400, 30, 'footerborder', 'footerborderdisplay', renderImages);
+        setMinMaxValueHook(-400, 500, 30, 'footerborder', 'footerborderdisplay', renderImages);
         setMinMaxValueHook(0, 200, 6, 'texteffectsize', 'texteffectsizedisplay', renderImages);
-
-        // createSliderNumberHook('maxcharsperline', 'maxcharsperlinedisplay');
-        // createSliderNumberHook('sloganyadjust', 'sloganyadjustdisplay');
-        // createSliderNumberHook('textlinespacing', 'textlinespacingdisplay');
-        // createSliderNumberHook('textborder', 'textborderdisplay');
-        // createSliderNumberHook('footerborder', 'footerborderdisplay');
-        // createSliderNumberHook('texteffectsize', 'texteffectsizedisplay');
-        //
-        // document.getElementById("maxcharsperlinedisplay").addEventListener("change", renderImages);
-        // document.getElementById("sloganyadjustdisplay").addEventListener("change", renderImages);
-        // document.getElementById("textlinespacingdisplay").addEventListener("change", renderImages);
-        // document.getElementById("textborderdisplay").addEventListener("change", renderImages);
-        // document.getElementById("footerborderdisplay").addEventListener("change", renderImages);
-        // document.getElementById("texteffectsizedisplay").addEventListener("change", renderImages);
-        //
-        // document.getElementById("maxcharsperlinedisplay").addEventListener("input", renderImages);
-        // document.getElementById("sloganyadjustdisplay").addEventListener("input", renderImages);
-        // document.getElementById("textlinespacingdisplay").addEventListener("input", renderImages);
-        // document.getElementById("textborderdisplay").addEventListener("input", renderImages);
-        // document.getElementById("footerborderdisplay").addEventListener("input", renderImages);
-        // document.getElementById("texteffectsizedisplay").addEventListener("input", renderImages);
-
 
         showHideButtonConfigure("#show-hide-background-shape", ".backgroundshapes", false);
 
@@ -863,14 +835,31 @@ function GuiConfigurator(){
         );
     }
 
+    function DefaultMinMax(){
+
+        this.theMin=1;
+        this.theMax=100;
+        this.theValue=50;
+        this.sliderid="";
+        this.numberid="";
+
+        this.set = function(theMin, theMax, theValue, sliderid, numberid){
+            this.theMin= theMin;
+            this.theMax= theMax;
+            this.theValue= theValue;
+            this.sliderid= sliderid;
+            this.numberid= numberid;
+            return this;
+        }
+    }
+
+    var defaultMinMaxValues=[];
+
     function setDefaultSliderValues(){
-        setMinMaxValue(1, 200, 80, 'fontsize', 'fontsizedisplay');
-        setMinMaxValue(1, 50, 15, 'maxcharsperline', 'maxcharsperlinedisplay');
-        setMinMaxValue(-300, 300, 0, 'sloganyadjust', 'sloganyadjustdisplay');
-        setMinMaxValue(1, 200, 30, 'textlinespacing', 'textlinespacingdisplay');
-        setMinMaxValue(1, 400, 100, 'textborder', 'textborderdisplay');
-        setMinMaxValue(-400, 500, 30, 'footerborder', 'footerborderdisplay');
-        setMinMaxValue(0, 200, 6, 'texteffectsize', 'texteffectsizedisplay');
+        for(var index=0; index<defaultMinMaxValues.length; index++){
+            var defaults = defaultMinMaxValues[index];
+            setMinMaxValue(defaults.theMin, defaults.theMax, defaults.theValue, defaults.sliderid, defaults.numberid);
+        }
     }
 
     function createSliderNumberHook(sliderid, numberid){
@@ -905,6 +894,8 @@ function GuiConfigurator(){
     }
 
     function setMinMaxValueHook(theMin, theMax, theValue, sliderid, numberid, renderImages){
+
+        defaultMinMaxValues.push(new DefaultMinMax().set(theMin, theMax, theValue, sliderid, numberid));
 
         setMinMaxValue(theMin, theMax, theValue, sliderid, numberid);
         createSliderNumberHook(sliderid, numberid);
@@ -994,16 +985,7 @@ function Renderer() {
     }
 
 
-    function setTextAlign(){
-        textAlign = "centerleft";
-        var elems = document.querySelectorAll(".textaligncenterconfig input[type='radio']");
-        for(var elemindex=0; elemindex<elems.length; elemindex++){
-            if(elems[elemindex].checked){
-                textAlign = elems[elemindex].getAttribute("value");
-                return;
-            }
-        }
-    }
+
 
     this.displayIn = function(anId) {
         new GuiConfigurator().displayIn(anId, renderAppText, renderImages, changerendersize, backgroundImageFunctionality, setTextAlign);
@@ -1198,11 +1180,11 @@ function Renderer() {
     }
 
 
-    var footerRenderingOn=true;
+
 
     function renderFooter(ctx, text) {
 
-        if(!footerRenderingOn){return;}
+        if(!footerConfig.isDisplayed){return;}
 
         var maxWidth = ctx.canvas.width - (border * 2);
         var maxHeight = ctx.canvas.height - (border * 2);
@@ -1210,11 +1192,12 @@ function Renderer() {
         var textFormatter = new TextFormatter();
 
         // use same formatting for footer as the main text - for single line of text
+        //footerConfig.autoMode=="custom"
         textFormatter.configure(ctx, text, maxWidth, maxHeight, text.length);
 
 
         // if auto size is on, and line is too wide for screen then change font size for footer
-        if (autoSizeFont) {
+        if (footerConfig.autoMode=="self") {
             if(ctx.measureText(text).width > maxWidth){
                 // autosize to fit text into space
                 fontSize = textFormatter.calculateFontSizeForActualText(startFontSize, fontfamily, text);
@@ -1231,7 +1214,7 @@ function Renderer() {
         // footerx = footerx / 2;
 
         // find y for footer
-        footery = ctx.measureText(text).actualBoundingBoxAscent + footerborder;
+        footery = ctx.measureText(text).actualBoundingBoxAscent + footerConfig.footerYOffset;
         footery = ctx.canvas.height - footery;
 
         var centerTextVertically = false;
@@ -1255,13 +1238,14 @@ function Renderer() {
 
 
     var fontfamily = "Calibri";
+    var fontSize=80;
 
     var autoSizeFont=true;
 
     var maxCharsPerLine = 15;
     var linespacing = 30;
     var border = 100;
-    var footerborder = 30;
+
     var sloganyadjust = 0;
     var backgroundOpacity=0;
 
@@ -1278,12 +1262,19 @@ function Renderer() {
 
     // // TODO: allow footer text size and font to be different from the main text
     //
-    // var footerConfig = {
-    //     sameAsText: true,
-    //     fontFamily: undefined,
-    //     textColor: undefined,
-    //     fontSize: undefined
-    // };
+
+
+    function FooterConfig(){
+        this.autoMode = "slogan";  // slogan, self, custom
+        this.isDisplayed=true;
+        this.footerYOffset=30;
+        this.fontFamily= undefined;
+        this.textColor= undefined;
+        this.fontSize= undefined;
+    }
+
+    var footerConfig = new FooterConfig();
+
     //
     // function getFooterTextColor(){
     //     if(footerConfig.textColor){
@@ -1318,6 +1309,27 @@ function Renderer() {
     //     // else - leave it as it is
     // }
 
+    function setTextAlign(){
+        textAlign = "centerleft";
+        var elems = document.querySelectorAll(".textaligncenterconfig input[type='radio']");
+        for(var elemindex=0; elemindex<elems.length; elemindex++){
+            if(elems[elemindex].checked){
+                textAlign = elems[elemindex].getAttribute("value");
+                return;
+            }
+        }
+    }
+
+    function setFooterAutoSize(){
+        footerConfig.autoMode = "slogan";
+        var elems = document.querySelectorAll(".footertextsizeauto input[type='radio']");
+        for(var elemindex=0; elemindex<elems.length; elemindex++){
+            if(elems[elemindex].checked){
+                footerConfig.autoMode = elems[elemindex].getAttribute("value");
+                return;
+            }
+        }
+    }
 
     function setGlobalsFromGui() {
         setGlobals(
@@ -1329,7 +1341,6 @@ function Renderer() {
             document.getElementById("maxcharsperline").value,
             document.getElementById('textlinespacing').value,
             document.getElementById('textborder').value,
-            document.getElementById('footerborder').value,
             document.getElementById('sloganyadjust').value,
             document.getElementById('backgroundimageurlinput').value,
             document.getElementById('backgroundcolouropacity').value,
@@ -1339,8 +1350,11 @@ function Renderer() {
             document.getElementById('applyeffecttofooter').checked,
             document.getElementById('effectColourPicker').value,
             document.getElementById('texteffectsize').value,
-            document.getElementById('displayFooter').checked
+        );
 
+        setFooterConfig(
+            document.getElementById('displayFooter').checked,
+            document.getElementById('footerborder').value,
         );
         // TODO: rework this, created new extract because it was getting too big
         setBackGroundShapeGlobals(
@@ -1355,11 +1369,16 @@ function Renderer() {
         );
     }
 
-    function setGlobals(useBackColor, useTextColor, font, useFontSize, useAutoSizeFont, useMaxCharsPerLine, useLineSpacing, useBorder, useFooterBorder,
+    function setFooterConfig(useDisplayFooter, useFooterBorder){
+        footerConfig.isDisplayed = useDisplayFooter;
+        footerConfig.footerYOffset = parseInt(useFooterBorder);
+        setFooterAutoSize();
+    }
+
+    function setGlobals(useBackColor, useTextColor, font, useFontSize, useAutoSizeFont, useMaxCharsPerLine, useLineSpacing, useBorder,
                         usesloganyadjust,
                         useImageUrl, useOpacity,
-                        useTextEffectStyle, applyThisEffectToFooter, useEffectColour, useEffectSize,
-                        useDisplayFooter
+                        useTextEffectStyle, applyThisEffectToFooter, useEffectColour, useEffectSize
     ) {
 
         backColor = useBackColor;
@@ -1370,7 +1389,6 @@ function Renderer() {
         maxCharsPerLine = parseInt(useMaxCharsPerLine);
         linespacing = parseInt(useLineSpacing);
         border = parseInt(useBorder);
-        footerborder = parseInt(useFooterBorder);
         sloganyadjust = parseInt(usesloganyadjust);
 
         effectStyle= parseInt(useTextEffectStyle);
@@ -1385,8 +1403,6 @@ function Renderer() {
             backgroundimage = undefined;
             backgroundOpacity = 1;
         }
-
-        footerRenderingOn = useDisplayFooter;
     }
 
     function setBackGroundShapeGlobals(showShape, useColour, useX, useY, useWidth, useHeight, useOpacity, useAngle){
