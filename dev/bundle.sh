@@ -1,4 +1,5 @@
 cat ./jsdev/version-comment.js \
+    ./jsdev/clipboard-interaction.js \
     ./jsdev/gui-html-pre.js \
     ./jsdev/gui-html.html \
     ./jsdev/gui-html-post.js \

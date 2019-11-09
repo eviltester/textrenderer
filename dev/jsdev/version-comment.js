@@ -1,6 +1,7 @@
 /*
     Informal version tracking
 
+    20191109 - added simple copy to clipboad button
     20191107 - footer auto config now added to GUI
     20191106 - split out text formatting, wrap code to a class, allows autosize of footer to have different size if too large, fixed bug where footer vertical adjust slider did not adjust y value
     20191031 - split into multiple files to make js easier to edit, side-effect html validation easier added background shape
