@@ -115,7 +115,11 @@ function ClipboardIntegrator(){
                                   <input id="textalignright" type="radio" name="textalign" value="right">Right
                             </div>
                         </div>
-        
+
+                        <div class="splitInNewLineConfig">
+                            <input type="checkbox" id="splitonnewline" checked/> Split On New Line
+                        </div>
+
                         <div class="maxcharsperlineconfig">
                             <label for="maxcharsperline">Max Chars Per Line <input type="number" id="maxcharsperlinedisplay"/></label>
                             <input type="range" class="slider" id="maxcharsperline">
@@ -291,14 +295,14 @@ function DrawLine(){
 
 function TextFormatter(){
 
-    this.configure = function(ctx, text, maxWidth, maxHeight, maxCharsPerLine){
+    this.configure = function(ctx, text, maxWidth, maxHeight, maxCharsPerLine, splitOnNewLine){
 
         this.ctx = ctx;
         this.text = text;
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
         this.maxCharsPerLine = maxCharsPerLine;
-
+        this.splitOnNewLine = splitOnNewLine;
         return this;
     };
 
@@ -364,6 +368,9 @@ function TextFormatter(){
 
     this.wrapText = function(forWidth) {
         var lines = [];
+        if(!this.splitOnNewLine){
+            this.text = this.text.replace(/\n/g," ")
+        }
         var words = this.text.split(' ');
         var line = '';
 
@@ -372,11 +379,35 @@ function TextFormatter(){
             var testLine = line + words[n] + ' ';
             var metrics = this.ctx.measureText(testLine);
             var testWidth = metrics.width;
-            if (testWidth > forWidth && n > 0) {
+            var endLineWithWord = false;
+
+            if (this.splitOnNewLine && words[n].includes("\n")) {
+                splitWord = words[n].split("\n");
+                line = line + splitWord[0];
                 lines.push(line);
-                line = words[n] + ' ';
+                for(var extraindex=1;extraindex<splitWord.length; extraindex++){
+                    line = splitWord[extraindex];
+                    if(extraindex==splitWord.length-1){
+                        line = line + " ";
+                    }else{
+                        lines.push(line);
+                    }
+                }
+
             } else {
-                line = testLine;
+                if (words[n].endsWith("\n") && this.splitOnNewLine) {
+                    endLineWithWord = true;
+                }
+                if (testWidth > forWidth && n > 0) {
+                    endLineWithWord = true;
+                }
+
+                if (endLineWithWord) {
+                    lines.push(line);
+                    line = words[n] + ' ';
+                } else {
+                    line = testLine;
+                }
             }
         }
         lines.push(line);
@@ -776,6 +807,7 @@ function GuiConfigurator(){
 
         document.getElementById("textfontselector").addEventListener("change", renderImages);
         document.getElementById("autofontsize").addEventListener("change", renderImages);
+        document.getElementById("splitonnewline").addEventListener("change", renderImages);
 
         var elems = document.querySelectorAll(".textaligncenterconfig input")
         for(elemindex=0; elemindex<elems.length; elemindex++){
@@ -1175,7 +1207,7 @@ function Renderer() {
         var maxHeight = ctx.canvas.height - (border * 2);
 
         textFormatter = new TextFormatter();
-        textFormatter.configure(ctx, text, maxWidth, maxHeight, maxCharsPerLine);
+        textFormatter.configure(ctx, text, maxWidth, maxHeight, maxCharsPerLine, splitOnNewLine);
 
         if (autoSizeFont) {
             fontSize = textFormatter.calculateFontSizeFor(startFontSize, fontfamily);
@@ -1211,7 +1243,7 @@ function Renderer() {
 
         // use same formatting for footer as the main text - for single line of text
         //footerConfig.autoMode=="custom"
-        textFormatter.configure(ctx, text, maxWidth, maxHeight, text.length);
+        textFormatter.configure(ctx, text, maxWidth, maxHeight, text.length, splitOnNewLine);
 
 
         // if auto size is on, and line is too wide for screen then change font size for footer
@@ -1277,6 +1309,8 @@ function Renderer() {
 
     var textAlign = "centerleft";
     var backgroundShape = undefined;
+
+    var splitOnNewLine=true;
 
     // // TODO: allow footer text size and font to be different from the main text
     //
@@ -1368,6 +1402,9 @@ function Renderer() {
             document.getElementById('applyeffecttofooter').checked,
             document.getElementById('effectColourPicker').value,
             document.getElementById('texteffectsize').value,
+
+            // split word
+            document.getElementById("splitonnewline").checked
         );
 
         setFooterConfig(
@@ -1396,7 +1433,8 @@ function Renderer() {
     function setGlobals(useBackColor, useTextColor, font, useFontSize, useAutoSizeFont, useMaxCharsPerLine, useLineSpacing, useBorder,
                         usesloganyadjust,
                         useImageUrl, useOpacity,
-                        useTextEffectStyle, applyThisEffectToFooter, useEffectColour, useEffectSize
+                        useTextEffectStyle, applyThisEffectToFooter, useEffectColour, useEffectSize,
+                        splitWords
     ) {
 
         backColor = useBackColor;
@@ -1421,6 +1459,9 @@ function Renderer() {
             backgroundimage = undefined;
             backgroundOpacity = 1;
         }
+
+        splitOnNewLine = splitWords;
+
     }
 
     function setBackGroundShapeGlobals(showShape, useColour, useX, useY, useWidth, useHeight, useOpacity, useAngle){

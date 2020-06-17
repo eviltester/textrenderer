@@ -249,7 +249,7 @@ function Renderer() {
         var maxHeight = ctx.canvas.height - (border * 2);
 
         textFormatter = new TextFormatter();
-        textFormatter.configure(ctx, text, maxWidth, maxHeight, maxCharsPerLine);
+        textFormatter.configure(ctx, text, maxWidth, maxHeight, maxCharsPerLine, splitOnNewLine);
 
         if (autoSizeFont) {
             fontSize = textFormatter.calculateFontSizeFor(startFontSize, fontfamily);
@@ -285,7 +285,7 @@ function Renderer() {
 
         // use same formatting for footer as the main text - for single line of text
         //footerConfig.autoMode=="custom"
-        textFormatter.configure(ctx, text, maxWidth, maxHeight, text.length);
+        textFormatter.configure(ctx, text, maxWidth, maxHeight, text.length, splitOnNewLine);
 
 
         // if auto size is on, and line is too wide for screen then change font size for footer
@@ -351,6 +351,8 @@ function Renderer() {
 
     var textAlign = "centerleft";
     var backgroundShape = undefined;
+
+    var splitOnNewLine=true;
 
     // // TODO: allow footer text size and font to be different from the main text
     //
@@ -442,6 +444,9 @@ function Renderer() {
             document.getElementById('applyeffecttofooter').checked,
             document.getElementById('effectColourPicker').value,
             document.getElementById('texteffectsize').value,
+
+            // split word
+            document.getElementById("splitonnewline").checked
         );
 
         setFooterConfig(
@@ -470,7 +475,8 @@ function Renderer() {
     function setGlobals(useBackColor, useTextColor, font, useFontSize, useAutoSizeFont, useMaxCharsPerLine, useLineSpacing, useBorder,
                         usesloganyadjust,
                         useImageUrl, useOpacity,
-                        useTextEffectStyle, applyThisEffectToFooter, useEffectColour, useEffectSize
+                        useTextEffectStyle, applyThisEffectToFooter, useEffectColour, useEffectSize,
+                        splitWords
     ) {
 
         backColor = useBackColor;
@@ -495,6 +501,9 @@ function Renderer() {
             backgroundimage = undefined;
             backgroundOpacity = 1;
         }
+
+        splitOnNewLine = splitWords;
+
     }
 
     function setBackGroundShapeGlobals(showShape, useColour, useX, useY, useWidth, useHeight, useOpacity, useAngle){

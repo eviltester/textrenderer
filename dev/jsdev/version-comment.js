@@ -1,6 +1,7 @@
 /*
     Informal version tracking
 
+    20200617 - added ability to split on new line and have new lines in the text to render
     20191109 - added simple copy to clipboad button
     20191107 - footer auto config now added to GUI
     20191106 - split out text formatting, wrap code to a class, allows autosize of footer to have different size if too large, fixed bug where footer vertical adjust slider did not adjust y value

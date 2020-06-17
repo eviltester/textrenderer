@@ -51,6 +51,7 @@ function GuiConfigurator(){
 
         document.getElementById("textfontselector").addEventListener("change", renderImages);
         document.getElementById("autofontsize").addEventListener("change", renderImages);
+        document.getElementById("splitonnewline").addEventListener("change", renderImages);
 
         var elems = document.querySelectorAll(".textaligncenterconfig input")
         for(elemindex=0; elemindex<elems.length; elemindex++){

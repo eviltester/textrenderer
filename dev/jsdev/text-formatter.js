@@ -1,13 +1,13 @@
 function TextFormatter(){
 
-    this.configure = function(ctx, text, maxWidth, maxHeight, maxCharsPerLine){
+    this.configure = function(ctx, text, maxWidth, maxHeight, maxCharsPerLine, splitOnNewLine){
 
         this.ctx = ctx;
         this.text = text;
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
         this.maxCharsPerLine = maxCharsPerLine;
-
+        this.splitOnNewLine = splitOnNewLine;
         return this;
     };
 
@@ -73,6 +73,9 @@ function TextFormatter(){
 
     this.wrapText = function(forWidth) {
         var lines = [];
+        if(!this.splitOnNewLine){
+            this.text = this.text.replace(/\n/g," ")
+        }
         var words = this.text.split(' ');
         var line = '';
 
@@ -81,11 +84,35 @@ function TextFormatter(){
             var testLine = line + words[n] + ' ';
             var metrics = this.ctx.measureText(testLine);
             var testWidth = metrics.width;
-            if (testWidth > forWidth && n > 0) {
+            var endLineWithWord = false;
+
+            if (this.splitOnNewLine && words[n].includes("\n")) {
+                splitWord = words[n].split("\n");
+                line = line + splitWord[0];
                 lines.push(line);
-                line = words[n] + ' ';
+                for(var extraindex=1;extraindex<splitWord.length; extraindex++){
+                    line = splitWord[extraindex];
+                    if(extraindex==splitWord.length-1){
+                        line = line + " ";
+                    }else{
+                        lines.push(line);
+                    }
+                }
+
             } else {
-                line = testLine;
+                if (words[n].endsWith("\n") && this.splitOnNewLine) {
+                    endLineWithWord = true;
+                }
+                if (testWidth > forWidth && n > 0) {
+                    endLineWithWord = true;
+                }
+
+                if (endLineWithWord) {
+                    lines.push(line);
+                    line = words[n] + ' ';
+                } else {
+                    line = testLine;
+                }
             }
         }
         lines.push(line);
